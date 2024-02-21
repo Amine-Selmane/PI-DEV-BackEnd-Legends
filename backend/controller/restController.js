@@ -1,6 +1,6 @@
 const asyncHandler = require ("express-async-handler")
 
-const myModel = require ("../model/myModel") //nononon
+const myModel = require ("../model/myModel")
 
 //Get 
 //@Route  Get /path/path
