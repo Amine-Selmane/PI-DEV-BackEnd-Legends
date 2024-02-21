@@ -1,4 +1,4 @@
-const mongoose = require('mongoose'); //noonono
+const mongoose = require('mongoose')
 
 const myModelSchema = new mongoose.Schema({
     
