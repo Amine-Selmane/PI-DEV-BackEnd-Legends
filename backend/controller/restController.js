@@ -1,6 +1,6 @@
 const asyncHandler = require ("express-async-handler")
 
-const myModel = require ("../model/myModel") //commentairetaire aire
+const myModel = require ("../model/myModel") //comment
 
 //Get 
 //@Route  Get /path/path
