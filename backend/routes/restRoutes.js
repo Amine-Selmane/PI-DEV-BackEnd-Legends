@@ -1,5 +1,5 @@
 const express = require ("express")
-const router = express.Router();
+const router = express.Router()
 // const {} = require ("../controller/restController") UNCOMMENT  AND ADD YOUR METHODS' NAMES BTWN THE {}
 
 // router.get('/',method name here)
