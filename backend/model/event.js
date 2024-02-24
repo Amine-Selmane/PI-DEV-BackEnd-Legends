@@ -10,6 +10,7 @@ const eventSchema = new mongoose.Schema({
   nbrPlaces: Number,
 });
 
+
 const Event = mongoose.model('Event', eventSchema);
 
 module.exports = Event;

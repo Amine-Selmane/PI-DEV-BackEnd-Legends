@@ -4,7 +4,7 @@ const dotenv = require ("dotenv").config()
 const connectDB = require("./config/db")
 const port = process.env.PORT || 5000 // 5000 is the default
 const EventRoutes = require('./routes/EventRoutes');
-
+const ReservationRoutes = require('./routes/ReservationRoutes');
 
 connectDB()
 
@@ -14,7 +14,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.use('/', EventRoutes); 
- 
+app.use('/', ReservationRoutes); 
 
 require('dotenv').config()
 
@@ -24,18 +24,7 @@ const { getStorage, ref ,uploadBytesResumable } = require('firebase/storage')
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword } = require("firebase/auth");
 const { auth } = require('./config/firebase.config')
 
-// createUserWithEmailAndPassword(auth, 'arifwb.work@gmail.com', 'dizztro41')
-//   .then((userCredential) => {
-//     // Signed in 
-//     const user = userCredential.user;
-//     console.log(user);
-//     // ...
-//   })
-//   .catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//     // ..
-//   });
+
 
 async function uploadImage(file, quantity) {
     const storageFB = getStorage();
