@@ -11,8 +11,8 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-// app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
- 
+app.use("/courses", require("./routes/coursesRoutes")) 
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
 })
