@@ -92,49 +92,168 @@ const otpGenerator = require  ('otp-generator');
 
 /** POST: http://localhost:8080/api/register */
 
- async function register(req, res) {
+//  async function register(req, res) {
+//     try {
+//       const { username, password, profile, email } = req.body;
+  
+//       // Vérifier l'existence de l'utilisateur
+//       const existUsername = UserModel.findOne({ username });
+//       const existEmail = UserModel.findOne({ email });
+  
+//       Promise.all([existUsername, existEmail])
+//         .then(([existingUsername, existingEmail]) => {
+//           if (existingUsername) {
+//             throw new Error("Please use unique username");
+//           }
+//           if (existingEmail) {
+//             throw new Error("Please use unique Email");
+//           }
+  
+//           // Hasher le mot de passe
+//           bcrypt.hash(password, 10)
+//             .then(hashedPassword => {
+//               const user = new UserModel({
+//                 username,
+//                 password: hashedPassword,
+//                 profile: profile || '',
+//                 email
+//               });
+  
+//               // Enregistrer l'utilisateur
+//               user.save()
+//                 .then(() => res.status(201).send({ msg: "User Register Successfully" }))
+//                 .catch(error => res.status(500).send({ error }));
+//             })
+//             .catch(error => {
+//               res.status(500).send({ error:  "Enable to hashed password" });
+//             });
+//         })
+//         .catch(error => {
+//           res.status(500).send({ error });
+//         });
+//     } catch (error) {
+//       res.status(500).send({ error });
+//     }
+//   }
+
+/** tous les registres des differents roles */
+
+
+/** POST: http://localhost:8080/api/register/admin */
+async function registerAdmin(req, res) {
     try {
-      const { username, password, profile, email } = req.body;
+      const { username, password, firstName, lastName, profile, email } = req.body;
   
-      // Vérifier l'existence de l'utilisateur
-      const existUsername = UserModel.findOne({ username });
-      const existEmail = UserModel.findOne({ email });
+      // Check if the username or email already exists
+      const existingUsername = await UserModel.findOne({ username });
+      const existingEmail = await UserModel.findOne({ email });
   
-      Promise.all([existUsername, existEmail])
-        .then(([existingUsername, existingEmail]) => {
-          if (existingUsername) {
-            throw new Error("Please use unique username");
-          }
-          if (existingEmail) {
-            throw new Error("Please use unique Email");
-          }
+      if (existingUsername) {
+        throw new Error("Please use a unique username");
+      }
+      if (existingEmail) {
+        throw new Error("Please use a unique email");
+      }
   
-          // Hasher le mot de passe
-          bcrypt.hash(password, 10)
-            .then(hashedPassword => {
-              const user = new UserModel({
-                username,
-                password: hashedPassword,
-                profile: profile || '',
-                email
-              });
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
   
-              // Enregistrer l'utilisateur
-              user.save()
-                .then(() => res.status(201).send({ msg: "User Register Successfully" }))
-                .catch(error => res.status(500).send({ error }));
-            })
-            .catch(error => {
-              res.status(500).send({ error:  "Enable to hashed password" });
-            });
-        })
-        .catch(error => {
-          res.status(500).send({ error });
-        });
+      const user = new UserModel({
+        username,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        profile: profile || '',
+        email,
+        role: 'admin'
+      });
+  
+      // Save the user
+      await user.save();
+      res.status(201).send({ msg: "Admin registered successfully" });
     } catch (error) {
-      res.status(500).send({ error });
+      res.status(500).send({ error: error.message });
     }
   }
+  
+
+  /** POST: http://localhost:8080/api/register/student */
+
+  async function registerStudent(req, res) {
+    try {
+      const { username, password,firstName, lastName, profile, email } = req.body;
+  
+      // Check if the username or email already exists
+      const existingUsername = await UserModel.findOne({ username });
+      const existingEmail = await UserModel.findOne({ email });
+  
+      if (existingUsername) {
+        throw new Error("Please use a unique username");
+      }
+      if (existingEmail) {
+        throw new Error("Please use a unique email");
+      }
+  
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      const user = new UserModel({
+        username,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        profile: profile || '',
+        email,
+        role: 'student'
+      });
+  
+      // Save the user
+      await user.save();
+      res.status(201).send({ msg: "Student registered successfully" });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  }
+  
+
+  /** POST: http://localhost:8080/api/register/teacher */
+
+  async function registerTeacher(req, res) {
+    try {
+      const { username, password,firstName, lastName, profile, email } = req.body;
+  
+      // Check if the username or email already exists
+      const existingUsername = await UserModel.findOne({ username });
+      const existingEmail = await UserModel.findOne({ email });
+  
+      if (existingUsername) {
+        throw new Error("Please use a unique username");
+      }
+      if (existingEmail) {
+        throw new Error("Please use a unique email");
+      }
+  
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      const user = new UserModel({
+        username,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        profile: profile || '',
+        email,
+        role: 'teacher'
+      });
+  
+      // Save the user
+      await user.save();
+      res.status(201).send({ msg: "Teacher registered successfully" });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  }
+  
 /** POST: http://localhost:8080/api/login */
 
  async function login(req,res){
@@ -253,12 +372,16 @@ const otpGenerator = require  ('otp-generator');
 
 module.exports = {
     verifyUser,
-    register,
+    //register,
     login,
     getUser,
     updateUser,
     generateOTP,
     verifyOTP,
     createResetSession,
-    resetPassword
+    resetPassword,
+    registerTeacher,
+    registerStudent,
+    registerAdmin
+
 }
