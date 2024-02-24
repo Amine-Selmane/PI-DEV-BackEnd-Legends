@@ -1,10 +1,30 @@
 const express = require ("express")
 const router = express.Router()
-// const {} = require ("../controller/restController") UNCOMMENT  AND ADD YOUR METHODS' NAMES BTWN THE {}
+
+const controller = require('../controller/restController.js');
+const {registerMail} = require('../controller/mailer.js');
+const {Auth , localVariables} =  require ('../middlware/auth.js');
+
 
 // router.get('/',method name here)
+/** Get methods*/
+router.route('/user/:username').get(controller.getUser);//user with username
+router.route('/generateOTP').get(controller.verifyUser,localVariables,controller.generateOTP);// generate random otp
+router.route('/verifyOTP').get(controller.verifyUser,controller.verifyOTP);//verify generated otp
+router.route('user/createResetSession').get(controller.createResetSession);//reset all the variables
+
 // router.post('/',method name here)
+/** Post methods*/
+router.route('/register').post(controller.register);//register user
+router.route('/registerMail').post(registerMail);//send the email
+router.route('/authenticate').post(controller.verifyUser,(req,res) => res.end());//authenticate user
+router.route('/login').post(controller.verifyUser,controller.login);//login in app
+
 // router.put('/:id',method name here)
+/** Put methods*/
+router.route('/updateuser').put(Auth,controller.updateUser);//is use to update the user profile
+router.route('/resetPassword').put(controller.verifyUser,controller.resetPassword);//use the reset password
+
 // router.delete('/:id',method name here)
 
 module.exports = router
