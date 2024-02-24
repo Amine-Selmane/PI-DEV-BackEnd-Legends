@@ -1,4 +1,4 @@
-const Book = require('../Models/book');
+const Book = require('../model/book');
 
 
 const getBookById = async (req, res) => {

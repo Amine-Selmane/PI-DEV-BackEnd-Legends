@@ -1,7 +1,7 @@
 const express = require ("express")
 const router = express.Router()
 const Book = require ('../model/book')
-const bookController = require('../controllers/bookController');
+const bookController = require('../controller/bookController');
 
 
 // Route for adding a book
