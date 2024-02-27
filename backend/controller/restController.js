@@ -9,17 +9,36 @@ const otpGenerator = require  ('otp-generator');
 
 
 /** middlware for verify user */
- async function verifyUser(req, res, next) {
-    try {
-      const { username } = req.method === "GET" ? req.query : req.body;
+//  async function verifyUser(req, res, next) {
+//     try {
+//       const { username } = req.method === "GET" ? req.query : req.body;
+//       // Check the user existence
+//       let exist = await UserModel.findOne({ username });
+//       if (!exist) return res.status(404).send({ error: "Can't find User!" });
+//       next();
+//     } catch (error) {
+//       return res.status(404).send({ error: "Authentication Error" });
+//     }
+//   }
+
+async function verifyUser(req, res, next) {
+  try {
+      const { email } = req.method === "GET" ? req.query : req.body;
+
       // Check the user existence
-      let exist = await UserModel.findOne({ username });
-      if (!exist) return res.status(404).send({ error: "Can't find User!" });
+      let exist = await UserModel.findOne({ email });
+      if (!exist) {
+          console.log(`User not found for email: ${email}`);
+          return res.status(404).send({ error: "Can't find User!" });
+      }
+
       next();
-    } catch (error) {
+  } catch (error) {
+      console.log("Error in verifyUser middleware:", error);
       return res.status(404).send({ error: "Authentication Error" });
-    }
   }
+}
+
 //Get 
 //@Route  Get /path/path
 //@Desc
@@ -41,6 +60,8 @@ const otpGenerator = require  ('otp-generator');
       if (!user) {
         return res.status(404).send({ error: "User Not Found" });
       }
+
+
   
      /** remove password from user */
               // mongoose return unnecessary data with object so convert it into json
@@ -53,12 +74,65 @@ const otpGenerator = require  ('otp-generator');
     }
   }
 
-/** GET: http://localhost:8080/api/generateOTP +query username  */
+  async function getUserByEmail(req, res) {
+    const email = req.params.email;  // Assuming the parameter is in the URL path
 
- async function generateOTP(req,res){
-    req.app.locals.OTP = await otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false})
-    res.status(201).send({ code: req.app.locals.OTP })
+    try {
+        if (!email) {
+            return res.status(400).send({ error: "Invalid email" });
+        }
+
+        const user = await UserModel.findOne({ email }).exec();
+
+        if (!user) {
+            return res.status(404).send({ error: "User Not Found" });
+        }
+
+        // Remove password from user
+        // Mongoose returns unnecessary data with the object, so convert it into JSON
+        const { password, ...rest } = Object.assign({}, user.toJSON());
+
+        return res.status(200).send(rest);
+    } catch (error) {
+        console.error("Error retrieving user data:", error);
+        return res.status(500).send({ error: "Internal Server Error" });
+    }
+}
+
+
+/** GET: http://localhost:5000/api/generateOTP +query username  */
+
+//  async function generateOTP(req,res){
+//     req.app.locals.OTP = await otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false})
+//     res.status(201).send({ code: req.app.locals.OTP })
+//   }
+
+async function generateOTP(req, res) {
+  const { email } = req.method === "GET" ? req.query : req.body;
+
+  try {
+      if (!email) {
+          return res.status(400).send({ error: "Invalid Email" });
+      }
+
+      // Check the existence of the user by email
+      const exist = await UserModel.findOne({ email });
+      if (!exist) {
+          return res.status(404).send({ error: "Can't find User with the provided email!" });
+      }
+
+      req.app.locals.OTP = await otpGenerator.generate(6, {
+          lowerCaseAlphabets: false,
+          upperCaseAlphabets: false,
+          specialChars: false
+      });
+
+      res.status(201).send({ code: req.app.locals.OTP });
+  } catch (error) {
+      return res.status(500).send({ error: "Internal Server Error" });
   }
+}
+
   
   /** GET: http://localhost:8080/api/verifyOTP */
   
@@ -382,6 +456,7 @@ module.exports = {
     resetPassword,
     registerTeacher,
     registerStudent,
-    registerAdmin
+    registerAdmin,
+    getUserByEmail
 
 }

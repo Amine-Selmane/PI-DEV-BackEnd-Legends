@@ -11,6 +11,7 @@ let transporter = nodemailer.createTransport({
   }
 });
 
+
 const registerMail = async (req, res) => {
   const { username, userEmail } = req.body;
 
@@ -37,6 +38,39 @@ const registerMail = async (req, res) => {
     .catch(error => res.status(500).send({ error }));
 };
 
+
+
+const sendOTPEmail = async (req, res) => {
+  const { userEmail, username, otp } = req.body;
+
+
+  const emailBody =`Dear ${username},
+
+    Your OTP (One-Time Password) for password recovery is: ${otp}. 
+    Please use this code to verify and recover your password.
+
+    Best,
+    ElKindy`;
+
+  const message = {
+    from: ENV.EMAIL,
+    to: userEmail,
+    subject: "Password Recovery OTP",
+    text: emailBody
+  };
+
+  transporter.sendMail(message)
+    .then(() => {
+      return res.status(200).send({ msg: "You should receive an email from us." });
+    })
+    .catch(error => res.status(500).send({ error }));
+};
+
+
+
+
+
 module.exports = {
-  registerMail
+  registerMail,
+  sendOTPEmail
 };
