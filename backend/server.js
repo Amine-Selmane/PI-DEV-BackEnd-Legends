@@ -5,10 +5,12 @@ const connectDB = require("./config/db")
 const port = process.env.PORT || 5000 // 5000 is the default
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
+const cors = require('cors');
 
 connectDB()
 
 const app = express()
+app.use(cors());
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -79,6 +81,9 @@ app.post('/test-upload', upload, async (req, res) => {
         console.log(err);
     }
 })
+
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
