@@ -1,29 +1,25 @@
-const express = require ("express")
-const colors = require('colors')
-const dotenv = require ("dotenv").config()
-const connectDB = require("./config/db")
-const port = process.env.PORT || 5000
-const bodyParser = require("body-parser");
+const express = require("express");
+const colors = require('colors');
+const dotenv = require("dotenv").config();
+const connectDB = require("./config/db");
+const port = process.env.PORT || 5000;
 const cors = require('cors');
 const bookRouter = require("./routes/books");
-connectDB()
 
-const app = express()
+connectDB();
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-// Middleware pour parser les corps des requêtes HTTP
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Middleware CORS pour permettre l'accès depuis des origines différentes
-app.use(
-     cors({})
-)
+app.use(cors({}));
+
 // Routes pour les livres
 app.use('/books', bookRouter);
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
- 
+
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`)
-})
+    console.log(`Server is running on port ${port}`);
+});
