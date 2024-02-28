@@ -1,6 +1,6 @@
-const asyncHandler = require ("express-async-handler")
+const asyncHandler = require("express-async-handler")
 
-const Courses = require ("../model/coursesModel")
+const Courses = require("../model/coursesModel")
 
 //Get 
 //@Route  Get /path/path
@@ -19,8 +19,7 @@ const getCourse = asyncHandler(async (req, res) => {
 
 const setCourse = asyncHandler(async (req, res) => {
     if (!req.body.name) {
-        res.status(400)
-        res.json({ message: 'Name not found' })
+        res.status(400).json({ message: 'Name not found' })
     } else {
         const courses = await Courses.create({
             name: req.body.name,
@@ -28,7 +27,7 @@ const setCourse = asyncHandler(async (req, res) => {
             teacher_name: req.body.teacher_name
         })
 
-        res.status(200).json({ message: 'Course added successfuly' })
+        res.status(200).json({ courses: courses, message: 'Course added successfuly' })
 
     }
 })
@@ -66,10 +65,19 @@ const deleteCourse = asyncHandler(async (req, res) => {
 
 })
 
+    const getById = asyncHandler(async (req, res) => {
+        const courses = await Courses.findById(req.params.id)
+        // Send response back if user is
+        res.status(200).json(courses)
+    })
+
+
+    
 
 module.exports = {
     getCourse,
     setCourse,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    getById
 }
