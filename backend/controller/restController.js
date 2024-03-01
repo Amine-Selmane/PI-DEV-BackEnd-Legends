@@ -9,19 +9,19 @@ const otpGenerator = require  ('otp-generator');
 
 
 /** middlware for verify user */
-//  async function verifyUser(req, res, next) {
-//     try {
-//       const { username } = req.method === "GET" ? req.query : req.body;
-//       // Check the user existence
-//       let exist = await UserModel.findOne({ username });
-//       if (!exist) return res.status(404).send({ error: "Can't find User!" });
-//       next();
-//     } catch (error) {
-//       return res.status(404).send({ error: "Authentication Error" });
-//     }
-//   }
+ async function verifyUser(req, res, next) {
+    try {
+      const { username } = req.method === "GET" ? req.query : req.body;
+      // Check the user existence
+      let exist = await UserModel.findOne({ username });
+      if (!exist) return res.status(404).send({ error: "Can't find User!" });
+      next();
+    } catch (error) {
+      return res.status(404).send({ error: "Authentication Error" });
+    }
+  }
 
-async function verifyUser(req, res, next) {
+async function verifyUserByEmail(req, res, next) {
   try {
       const { email } = req.method === "GET" ? req.query : req.body;
 
@@ -62,6 +62,7 @@ async function verifyUser(req, res, next) {
       }
 
 
+      
   
      /** remove password from user */
               // mongoose return unnecessary data with object so convert it into json
@@ -100,6 +101,23 @@ async function verifyUser(req, res, next) {
 }
 
 
+async function getUserToken(req, res) {
+  try {
+    const userId = req.user.userId; // Assuming the decoded token has a userId property
+
+    const user = await UserModel.findById(userId); // Fetch user from the database by ID
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(user); // Return the entire user object
+  } catch (error) {
+    console.error('Error fetching user:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 /** GET: http://localhost:5000/api/generateOTP +query username  */
 
 //  async function generateOTP(req,res){
@@ -136,28 +154,40 @@ async function generateOTP(req, res) {
   
   /** GET: http://localhost:8080/api/verifyOTP */
   
-   async function verifyOTP(req,res){
+  //  async function verifyOTP(req,res){
+  //   const { code } = req.query;
+  //   if(parseInt(req.app.locals.OTP) === parseInt(code)){
+  //       req.app.locals.OTP = null; // reset the OTP value
+  //       req.app.locals.resetSession = true; // start session for reset password
+  //       return res.status(201).send({ msg: 'Verify Successsfully!'})
+  //   }
+  //   return res.status(400).send({ error: "Invalid OTP"});
+  // }
+  async function verifyOTP(req, res) {
     const { code } = req.query;
-    if(parseInt(req.app.locals.OTP) === parseInt(code)){
-        req.app.locals.OTP = null; // reset the OTP value
-        req.app.locals.resetSession = true; // start session for reset password
-        return res.status(201).send({ msg: 'Verify Successsfully!'})
+    const OTP = req.app.locals.OTP;
+  
+    if (parseInt(OTP) === parseInt(code)) {
+      req.app.locals.OTP = null; // Reset the OTP value
+      req.app.locals.resetSession = true; // Start session for reset password
+      return res.status(201).send({ msg: 'Verify Successfully!' });
     }
-    return res.status(400).send({ error: "Invalid OTP"});
+    
+    return res.status(400).send({ error: "Invalid OTP" });
   }
   
   //success redirect user when otp is valid
-  /** GET: http://localhost:8080/api/createResetSession */
+  /** GET: http://localhost:5000/api/createResetSession */
   
-   async function createResetSession (req,res){
-    
-    if(req.app.locals.resetSession ){
-      req.app.locals.resetSession = false//allow access to this route only 1
-      return res.status(201).send({msg : "Access Granted!"})
-    } 
-    return res.status(440).send({error : "Session espired!"})
-   
-  }
+  async function createResetSession(req,res){
+    if(req.app.locals.resetSession){
+         return res.status(201).send({ flag : req.app.locals.resetSession})
+    }
+    return res.status(440).send({error : "Session expired!"})
+ }
+
+
+ 
 
 //Set 
 //@Route  POST /path/path
@@ -216,7 +246,7 @@ async function generateOTP(req, res) {
 /** POST: http://localhost:8080/api/register/admin */
 async function registerAdmin(req, res) {
     try {
-      const { username, password, firstName, lastName, profile, email } = req.body;
+      const { username, password, firstName, lastName, profile, email , mobile , address, dateNaiss } = req.body;
   
       // Check if the username or email already exists
       const existingUsername = await UserModel.findOne({ username });
@@ -239,7 +269,10 @@ async function registerAdmin(req, res) {
         lastName,
         profile: profile || '',
         email,
-        role: 'admin'
+        dateNaiss,
+        address,
+        mobile,
+        role: 'admin',
       });
   
       // Save the user
@@ -377,7 +410,7 @@ async function registerAdmin(req, res) {
 //@Desc   
 
 
-/** PUT: http://localhost:8080/api/updateuser */
+/** PUT: http://localhost:5000/api/updateuser */
 
  async function updateUser(req, res) {
     try {
@@ -404,7 +437,7 @@ async function registerAdmin(req, res) {
 
 
 //update the password when we have valid session
-/** PUT: http://localhost:8080/api/resetPassword */
+/** PUT: http://localhost:5000/api/resetPassword */
  async function resetPassword(req, res) {
     try {
       if (!req.app.locals.resetSession) {
@@ -457,6 +490,8 @@ module.exports = {
     registerTeacher,
     registerStudent,
     registerAdmin,
-    getUserByEmail
+    getUserByEmail,
+    verifyUserByEmail,
+    getUserToken
 
 }

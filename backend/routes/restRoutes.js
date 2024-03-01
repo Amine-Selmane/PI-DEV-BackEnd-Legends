@@ -9,11 +9,11 @@ const {Auth , localVariables} =  require ('../middlware/auth.js');
 // router.get('/',method name here)
 /** Get methods*/
 router.route('/user/:username').get(controller.getUser);//user with username
+router.route('/userToken').get(Auth,controller.getUserToken);//user with username
 router.route('/userbyEmail/:email').get(controller.getUserByEmail);//user with email
-router.route('/generateOTP').get(controller.verifyUser, localVariables, controller.generateOTP);
-router.route('/verifyOTP').get(controller.verifyUser,controller.verifyOTP);//verify generated otp
-router.route('user/createResetSession').get(controller.createResetSession);//reset all the variables
-
+router.route('/generateOTP').get(controller.verifyUserByEmail, localVariables, controller.generateOTP);
+router.route('/verifyOTP').get(controller.verifyOTP);//verify generated otp
+router.route('/createResetSession').get(controller.createResetSession) // reset all the variables
 // router.post('/',method name here)
 /** Post methods*/
 //router.route('/register').post(controller.register);//register user

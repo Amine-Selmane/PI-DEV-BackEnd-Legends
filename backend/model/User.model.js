@@ -26,7 +26,8 @@ const UserSchema = new mongoose.Schema({
     address: { type: String},
     grade: { type: String},
     fonction: { type: String},
-    profile: { type: String}
+    profile: { type: String},
+    dateNaiss : {type : Date}
 });
 
 module.exports = mongoose.model('user', UserSchema)
