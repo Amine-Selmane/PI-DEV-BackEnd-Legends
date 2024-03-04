@@ -1,6 +1,6 @@
 
 const asyncHandler = require('express-async-handler');
-const Event = require('../model/event');
+const Event  = require('../model/event');
 const firebaseConfig = require('../config/firebase.config'); // Adjust the path as needed
 
 
@@ -47,6 +47,7 @@ const eventController = {
   }),
 
 
+  
   
 
 };
