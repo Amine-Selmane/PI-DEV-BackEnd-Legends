@@ -4,7 +4,7 @@ const colors = require('colors')
 const dotenv = require ("dotenv").config()
 const connectDB = require("./config/db")
 const bodyParser = require("body-parser");
-const port = process.env.PORT || 5000 // 5000 is the default
+const port = process.env.PORT || 5000 
 const courses = require("./routes/coursesRoutes")
 
 connectDB()
