@@ -10,52 +10,106 @@ const Report=require("../model/report");
 const User=require("../model/user");
 const Course=require("../model/course");
 
-async function add(req, res) {
-    try {
-        const { teacherId, studentId, courseId, mark, markquiz  } = req.body;
+// async function add(req, res) {
+//     try {
+//         const { teacherId, studentId, courseId, mark, markquiz  } = req.body;
     
-        //enseignant
-        const teacher = await User.findById(teacherId);
-        //  if (!teacher || teacher.role !== 'teacher') {
-        //  return res.status(404).json({ error: 'Invalid teacher ID' });
-        // }
+//         //enseignant
+//         const teacher = await User.findById(teacherId);
+//          if (!teacher || teacher.role !== 'teacher') {
+//          return res.status(404).json({ error: 'Invalid teacher ID' });
+//         }
     
-        //étudiant
-        const student = await User.findById(studentId);
-        //  if (!student || student.role !== 'student') {
-        //  return res.status(404).json({ error: 'Invalid student ID' });
-        //  }
+//         //étudiant
+//         const student = await User.findById(studentId);
+//          if (!student || student.role !== 'student') {
+//          return res.status(404).json({ error: 'Invalid student ID' });
+//          }
     
-        //cours
-        const course = await Course.findById(courseId);
-        if (!course) {
-          return res.status(404).json({ error: 'Invalid course ID' });
-        }
+//         //cours
+//         const course = await Course.findById(courseId);
+//         if (!course) {
+//           return res.status(404).json({ error: 'Invalid course ID' });
+//         }
 
-         // Calcul de la moyenne
-         const average = (mark + markquiz) / 2;
+//          // Calcul de la moyenne
+//          const average = (mark + markquiz) / 2;
     
-        const report = new Report({
-            teacher: teacher._id, //ObjectId de l'enseignant
-            student: student._id, // Utiliser l'identifiant ObjectId de l'étudiant
-            course: course._id,   // Utiliser l'identifiant ObjectId du cours
-            mark,
-            markquiz,
-            average
-        });
+//         const report = new Report({
+//             teacher: teacher._id, //ObjectId de l'enseignant
+//             student: student._id, // Utiliser l'identifiant ObjectId de l'étudiant
+//             course: course._id,   // Utiliser l'identifiant ObjectId du cours
+//             mark,
+//             markquiz,
+//             average
+//         });
     
-        await report.save();
-        // Rechercher le rapport avec les noms correspondants
-    const populatedReport = await Report.findById(report._id)
-    .populate('teacher', 'firstName lastName')
-    .populate('student', 'firstName lastName')
-    .populate('course', 'name');
-        res.status(201).json({ message: 'Report created successfully', report: populatedReport });
-      } catch (error) {
-        console.error('Error creating report:', error);
-        res.status(500).json({ error: 'Error creating report' });
+//         await report.save();
+//         // Rechercher le rapport avec les noms correspondants
+//     const populatedReport = await Report.findById(report._id)
+//     .populate('teacher', 'firstName lastName')
+//     .populate('student', 'firstName lastName')
+//     .populate('course', 'name');
+//         res.status(201).json({ message: 'Report created successfully', report: populatedReport });
+//       } catch (error) {
+//         console.error('Error creating report:', error);
+//         res.status(500).json({ error: 'Error creating report' });
+//       }
+//     }
+
+async function add(req, res) {
+  try {
+      const { teacherId, studentId, courseId, mark, markquiz } = req.body;
+
+      // Convertir les valeurs de mark et markquiz en nombres
+      const markValue = parseFloat(mark);
+      const markquizValue = parseFloat(markquiz);
+
+      // Vérifier si les valeurs sont valides
+      if (isNaN(markValue) || isNaN(markquizValue)) {
+          return res.status(400).json({ error: 'Invalid mark or markquiz value' });
       }
-    }
+
+      // Continuer avec le reste du code
+      const teacher = await User.findById(teacherId);
+      if (!teacher || teacher.role !== 'teacher') {
+          return res.status(404).json({ error: 'Invalid teacher ID' });
+      }
+
+      const student = await User.findById(studentId);
+      if (!student || student.role !== 'student') {
+          return res.status(404).json({ error: 'Invalid student ID' });
+      }
+
+      const course = await Course.findById(courseId);
+      if (!course) {
+          return res.status(404).json({ error: 'Invalid course ID' });
+      }
+
+      const average = (markValue + markquizValue) / 2;
+
+      const report = new Report({
+          teacher: teacher._id,
+          student: student._id,
+          course: course._id,
+          mark: markValue, // Utiliser la valeur convertie en nombre
+          markquiz: markquizValue, // Utiliser la valeur convertie en nombre
+          average
+      });
+
+      await report.save();
+
+      const populatedReport = await Report.findById(report._id)
+          .populate('teacher', 'firstName lastName')
+          .populate('student', 'firstName lastName')
+          .populate('course', 'name');
+
+      res.status(201).json({ message: 'Report created successfully', report: populatedReport });
+  } catch (error) {
+      console.error('Error creating report:', error);
+      res.status(500).json({ error: 'Error creating report' });
+  }
+}
 
 
     async function getall(req, res) {
@@ -100,40 +154,30 @@ async function add(req, res) {
               }
             }
 
-            async function update (req, res) {
-                try {
-                    const reportId = req.params.id;
-                    const { teacherId, studentId, courseId, mark } = req.body;
-                
-                    // Recherchez le rapport par son ID dans la base de données
-                    let report = await Report.findById(reportId)
-                      .populate('teacher', 'firstName lastName') // Remplacez l'ID de l'enseignant par son nom complet
-                      .populate('student', 'firstName lastName') // Remplacez l'ID de l'étudiant par son nom complet
-                      .populate('course', 'name'); // Remplacez l'ID du cours par son nom
-                
-                    if (!report) {
-                      // Si le rapport n'est pas trouvé, renvoyez une erreur 404
-                      return res.status(404).json({ error: 'Report not found' });
-                    }
-                
-                    // Mettez à jour les champs du rapport avec les nouvelles valeurs
-                    report.teacher = teacherId;
-                    report.student = studentId;
-                    report.course = courseId;
-                    report.mark = mark;
-                
-                    // Enregistrez les modifications apportées au rapport
-                    report = await report.save();
-                
-                    // Renvoyez le rapport mis à jour avec les noms correspondants
-                    res.status(200).json({ message: 'Report updated successfully', report });
-                  } catch (error) {
-                    // Gérez les erreurs
-                    console.error('Error updating report:', error);
-                    res.status(500).json({ error: 'Error updating report' });
-                  }
+            async function update(req, res) {
+              try {
+                const reportId = req.params.id;
+                const { mark, markquiz } = req.body;
+               
+            
+                let report = await Report.findById(reportId);
+            
+                if (!report) {
+                  return res.status(404).json({ error: "Report not found" });
                 }
-
+                report.mark = mark;
+                report.markquiz = markquiz;
+            
+                report.average = (parseFloat(mark) + parseFloat(markquiz)) / 2;
+            
+                await report.save();
+            
+                res.status(200).json({ message: "Report updated successfully", report });
+              } catch (error) {
+                console.error("Error updating report:", error);
+                res.status(500).json({ error: "Error updating report" });
+              }
+            }
 
                 async function deletereport (req, res) {
                     try {
