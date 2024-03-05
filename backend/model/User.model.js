@@ -27,6 +27,7 @@ const UserSchema = new mongoose.Schema({
     grade: { type: String},
     fonction: { type: String},
     profile: { type: String},
+    sexe: { type: String},
     dateNaiss : {type : Date}
 });
 

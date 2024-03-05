@@ -474,11 +474,62 @@ async function registerAdmin(req, res) {
 //@Route  DELETE /path/path/:id
 //@Desc   
 
-//method here
+//method here cruud
 
+/** add user*/
+/** POST: http://localhost:5000/api/add */
+async function add(req,res){
+  try{
+  console.log('data',req.body);
+  const user=new UserModel(req.body)
+ await user.save();
+ res.status(200).send("add good");
+  }catch(err){
+      res.status(400).send({error: err});
+  }
+}
+
+/** get all users */
+/** GET: http://localhost:5000/api/getall  */
+async function getall(req,res){
+  try{
+  const data=await UserModel.find();
+ res.status(200).send(data);
+  }catch(err){
+      res.status(400).send(err);
+      //console.log()
+  }
+}
+
+/** update user */
+/** PUT: http://localhost:5000/api/update/:id  */
+async function updatebyid(req,res){
+  try{
+await UserModel.findByIdAndUpdate(req.params.id,req.body);
+res.status(200).send("updated");
+  } catch(err){
+      res.status(400).send(err);
+  }
+}
+
+/** DELETE: http://localhost:5000/api/deleteuser/:id  */
+
+async function deleteuser(req,res){
+ 
+  try{
+await UserModel.findByIdAndDelete(req.params.id);
+res.status(200).send("deleted");
+  } catch(err){
+      res.status(400).send(err);
+  }
+}
 
 module.exports = {
     verifyUser,
+    add,
+    getall,
+    updatebyid,
+    deleteuser,
     //register,
     login,
     getUser,
