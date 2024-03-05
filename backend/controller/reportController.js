@@ -207,7 +207,35 @@ async function add(req, res) {
                   }
                 }
 
-    module.exports={add,getall,getbyid,update,deletereport,getReportsByStudentId};
+                async function searchByStudentName(req, res) {
+                  try {
+                      const { searchQuery } = req.query;
+              
+                      // Recherchez les étudiants dont le prénom ou le nom correspond à la chaîne de recherche
+                      const students = await User.find({
+                          $or: [
+                              { firstName: { $regex: searchQuery, $options: 'i' } }, // Recherche insensible à la casse
+                              { lastName: { $regex: searchQuery, $options: 'i' } }
+                          ]
+                      });
+              
+                      // Récupérez les ID des étudiants correspondants
+                      const studentIds = students.map(student => student._id);
+              
+                      // Recherchez les rapports associés à ces étudiants
+                      const reports = await Report.find({ student: { $in: studentIds } })
+                          .populate('teacher', 'firstName lastName')
+                          .populate('student', 'firstName lastName')
+                          .populate('course', 'name');
+              
+                      res.status(200).json({ reports });
+                  } catch (error) {
+                      console.error('Error searching reports by student name:', error);
+                      res.status(500).json({ error: 'Error searching reports by student name' });
+                  }
+              }
+
+    module.exports={add,getall,getbyid,update,deletereport,getReportsByStudentId,searchByStudentName};
 // Fonction pour récupérer les détails d'un utilisateur par son ID
 // async function getUserById(userId) {
 //     try {

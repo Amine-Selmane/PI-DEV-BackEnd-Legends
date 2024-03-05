@@ -14,6 +14,7 @@ router.put('/update/:id', reportController.update);
 router.delete('/deletereport/:id',reportController.deletereport);
 // Route pour récupérer les rapports d'un étudiant spécifique
 router.get('/reports/student/:studentId', reportController.getReportsByStudentId);
+router.get('/reports/search',reportController.searchByStudentName);
 // router.get('/',method name here)
 // router.post('/',method name here)
 // router.put('/:id',method name here)
