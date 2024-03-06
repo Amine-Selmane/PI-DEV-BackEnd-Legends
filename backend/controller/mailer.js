@@ -26,7 +26,7 @@ async function sendAccountDetailsEmail(req, res, next) {
     Email: ${email}
     Password: ${password}
 
-    Thank you for signing up!
+    Thank you for following the forget password steps to change your password and signing up !
 
     Best,
     ElKindy`;

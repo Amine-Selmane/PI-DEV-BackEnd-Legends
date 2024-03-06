@@ -397,12 +397,14 @@ async function registerAdmin(req, res) {
                       // create jwt token
                       const token = jwt.sign({
                                       userId: user._id,
-                                      username : user.username
+                                      username : user.username,
+                                      role: user.role
                                   }, ENV.JWT_SECRET , { expiresIn : "24h"});
 
                       return res.status(200).send({
                           msg: "Login Successful...!",
                           username: user.username,
+                          role: user.role,
                           token
                       });                                    
 
@@ -497,29 +499,16 @@ async function registerAdmin(req, res) {
 /** add user*/
 /** POST: http://localhost:5000/api/add */
 
-async function add(req, res) {
-  try {
-    console.log('data', req.body);
-    const { username, email, password , firstName , lastName , dateNaiss , mobile , address} = req.body;
-    const user = new UserModel({ username, email, password  , firstName , lastName , dateNaiss , mobile , address});
-    await user.save();
-
-    res.status(200).send("add good");
-  } catch (err) {
-    res.status(400).send({ error: err.message });
+async function add(req,res){
+  try{
+  console.log('data',req.body);
+  const user=new UserModel(req.body)
+ await user.save();
+ res.status(200);
+  }catch(err){
+      res.status(400).send({error: err});
   }
 }
-
-// async function add(req,res){
-//   try{
-//   console.log('data',req.body);
-//   const user=new UserModel(req.body)
-//  await user.save();
-//  res.status(200).send("add good");
-//   }catch(err){
-//       res.status(400).send({error: err});
-//   }
-// }
 
 /** get all users */
 /** GET: http://localhost:5000/api/getall  */
