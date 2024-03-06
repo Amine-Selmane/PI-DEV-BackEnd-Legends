@@ -5,7 +5,7 @@ const  bcrypt = require ('bcrypt');
 const jwt =  require ('jsonwebtoken');
 const ENV = require  ('../config.js');
 const otpGenerator = require  ('otp-generator');
-
+const sendAccountDetailsEmail = require('./mailer.js')
 
 
 /** middlware for verify user */
@@ -114,6 +114,24 @@ async function getUserToken(req, res) {
     res.status(200).json(user); // Return the entire user object
   } catch (error) {
     console.error('Error fetching user:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+async function getById(req, res) {
+  try {
+    
+    const data = await UserModel.findById(req.params.userId);
+
+    if (!data) {
+      // If user with the specified ID is not found, return 404
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // If user is found, return the data
+    res.status(200).json(data);
+  } catch (err) {
+    // Handle any other errors
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
@@ -478,16 +496,30 @@ async function registerAdmin(req, res) {
 
 /** add user*/
 /** POST: http://localhost:5000/api/add */
-async function add(req,res){
-  try{
-  console.log('data',req.body);
-  const user=new UserModel(req.body)
- await user.save();
- res.status(200).send("add good");
-  }catch(err){
-      res.status(400).send({error: err});
+
+async function add(req, res) {
+  try {
+    console.log('data', req.body);
+    const { username, email, password , firstName , lastName , dateNaiss , mobile , address} = req.body;
+    const user = new UserModel({ username, email, password  , firstName , lastName , dateNaiss , mobile , address});
+    await user.save();
+
+    res.status(200).send("add good");
+  } catch (err) {
+    res.status(400).send({ error: err.message });
   }
 }
+
+// async function add(req,res){
+//   try{
+//   console.log('data',req.body);
+//   const user=new UserModel(req.body)
+//  await user.save();
+//  res.status(200).send("add good");
+//   }catch(err){
+//       res.status(400).send({error: err});
+//   }
+// }
 
 /** get all users */
 /** GET: http://localhost:5000/api/getall  */
@@ -524,6 +556,7 @@ res.status(200).send("deleted");
   }
 }
 
+
 module.exports = {
     verifyUser,
     add,
@@ -543,6 +576,7 @@ module.exports = {
     registerAdmin,
     getUserByEmail,
     verifyUserByEmail,
-    getUserToken
+    getUserToken,
+    getById
 
 }

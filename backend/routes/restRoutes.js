@@ -2,14 +2,16 @@ const express = require ("express")
 const router = express.Router()
 
 const controller = require('../controller/restController.js');
-const {registerMail,sendOTPEmail} = require('../controller/mailer.js');
+const {registerMail,sendOTPEmail,sendAccountDetailsEmail} = require('../controller/mailer.js');
 const {Auth , localVariables} =  require ('../middlware/auth.js');
 
 
 // router.get('/',method name here)
 /** Get methods*/
 router.route('/user/:username').get(controller.getUser);//user with username
-router.route('/userToken').get(Auth,controller.getUserToken);//user with username
+router.route('/userToken').get(Auth,controller.getUserToken);//
+router.route('/user/ById/:userId').get(controller.getById);
+
 router.route('/userbyEmail/:email').get(controller.getUserByEmail);//user with email
 router.route('/generateOTP').get(controller.verifyUserByEmail, localVariables, controller.generateOTP);
 router.route('/verifyOTP').get(controller.verifyOTP);//verify generated otp
@@ -26,7 +28,7 @@ router.route('/registerMail').post(registerMail);//send the email
 router.route('/sendOTP').post(sendOTPEmail);//send the email
 router.route('/authenticate').post(controller.verifyUser,(req,res) => res.end());//authenticate user
 router.route('/login').post(controller.verifyUser,controller.login);//login in app
-router.post("/add",controller.add);
+router.post("/add",sendAccountDetailsEmail,controller.add);
 
 // router.put('/:id',method name here)
 /** Put methods*/
