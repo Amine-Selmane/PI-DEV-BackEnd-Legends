@@ -113,20 +113,29 @@ async function add(req, res) {
 
 
     async function getall(req, res) {
-        try {
-            // Récupérez tous les rapports de la base de données
-            const reports = await Report.find()
-              .populate('teacher', 'firstName lastName') 
-              .populate('student', 'firstName lastName') 
-              .populate('course', 'name'); 
-        
-            // Renvoyez la liste des rapports
-            res.status(200).json({ reports });
-          } catch (error) {
-            // Gérez les erreurs
-            console.error('Error fetching reports:', error);
-            res.status(500).json({ error: 'Error fetching reports' });
-          }
+      try {
+        const { sortOrder } = req.query;
+        let sortQuery = {};
+        if (sortOrder === 'asc') {
+            sortQuery = { 'mark': 1 };
+        } else if (sortOrder === 'desc') {
+            sortQuery = { 'mark': -1 };
+        }
+
+        // Récupérez tous les rapports de la base de données et triez-les
+        const reports = await Report.find()
+            .populate('teacher', 'firstName lastName') 
+            .populate('student', 'firstName lastName') 
+            .populate('course', 'name')
+            .sort(sortQuery); // Tri par note (mark) selon l'ordre spécifié
+
+        // Renvoyez la liste des rapports triés
+        res.status(200).json({ reports });
+    } catch (error) {
+        // Gérez les erreurs
+        console.error('Error fetching reports:', error);
+        res.status(500).json({ error: 'Error fetching reports' });
+    }
       
         }
 
@@ -207,35 +216,26 @@ async function add(req, res) {
                   }
                 }
 
-                async function searchByStudentName(req, res) {
+                async function searchByCourse(req, res) {
                   try {
-                      const { searchQuery } = req.query;
-              
-                      // Recherchez les étudiants dont le prénom ou le nom correspond à la chaîne de recherche
-                      const students = await User.find({
-                          $or: [
-                              { firstName: { $regex: searchQuery, $options: 'i' } }, // Recherche insensible à la casse
-                              { lastName: { $regex: searchQuery, $options: 'i' } }
-                          ]
-                      });
-              
-                      // Récupérez les ID des étudiants correspondants
-                      const studentIds = students.map(student => student._id);
-              
-                      // Recherchez les rapports associés à ces étudiants
-                      const reports = await Report.find({ student: { $in: studentIds } })
-                          .populate('teacher', 'firstName lastName')
-                          .populate('student', 'firstName lastName')
-                          .populate('course', 'name');
-              
-                      res.status(200).json({ reports });
+                    const courseName = req.params.courseName;
+                
+                    // Créer une expression régulière insensible à la casse pour rechercher le nom du cours
+                    const regex = new RegExp(courseName, 'i');
+                
+                    // Rechercher les rapports avec le nom de cours correspondant
+                    const reports = await Report.find({ 'course.name': regex })
+                      .populate('teacher', 'firstName lastName')
+                      .populate('student', 'firstName lastName')
+                      .populate('course', 'name');
+                
+                    res.status(200).json({ reports });
                   } catch (error) {
-                      console.error('Error searching reports by student name:', error);
-                      res.status(500).json({ error: 'Error searching reports by student name' });
+                    console.error('Error searching reports by course name:', error);
+                    res.status(500).json({ error: 'Error searching reports by course name' });
                   }
-              }
-
-    module.exports={add,getall,getbyid,update,deletereport,getReportsByStudentId,searchByStudentName};
+                }
+    module.exports={add,getall,getbyid,update,deletereport,getReportsByStudentId,searchByCourse};
 // Fonction pour récupérer les détails d'un utilisateur par son ID
 // async function getUserById(userId) {
 //     try {
