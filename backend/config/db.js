@@ -2,18 +2,12 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-<<<<<<< HEAD
-        const conn = await mongoose.connect(process.env.MONGO_URI, {
+        const conn = await mongoose.connect(process.env.MONGO_URI_SRV, {
             useNewUrlParser: true,
             useUnifiedTopology: true // Ajoutez cette option si nécessaire
         });
         console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline);
     } catch (error) {
-=======
-        const conn = await mongoose.connect(process.env.MONGO_URI_SRV)
-        console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline)
-    } catch (error){
->>>>>>> main
         console.error(error);
         process.exit(1);
     }
