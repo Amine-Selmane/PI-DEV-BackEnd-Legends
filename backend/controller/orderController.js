@@ -3,13 +3,52 @@ const Order = require('../model/order');
 // Get all orders
 const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.find();
-        res.json(orders);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+      let orders;
+  
+      // Check if there's a filter criteria in the query params
+      if (req.query.criteria) {
+        const { criteria } = req.query;
+  
+        // Implement logic to filter orders based on the criteria
+        if (criteria === 'pending' || criteria === 'processing' || criteria === 'completed') {
+          orders = await Order.find({ status: criteria });
+        } else {
+          return res.status(400).json({ message: 'Invalid filter criteria' });
+        }
+      } else {
+        // If no filter criteria provided, fetch all orders
+        orders = await Order.find();
+      }
+  
+      res.status(200).json(orders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-};
-
+  };
+  
+const search= async (req, res) => {
+    const { criteria, value } = req.query;
+  
+    try {
+      let orders;
+      // Implement logic to search for orders based on the criteria
+      if (criteria === 'customerId') {
+        orders = await Order.find({ customerId: value });
+      } else if (criteria === 'totalPrice') {
+        orders = await Order.find({ totalPrice: value });
+      } else if (criteria === 'status') {
+        orders = await Order.find({ status: value });
+      } else {
+        return res.status(400).json({ message: 'Invalid search criteria' });
+      }
+  
+      res.status(200).json(orders);
+    } catch (error) {
+      console.error('Error searching orders:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
 // Create a new order
 const createOrder = async (req, res) => {
     const order = new Order({
@@ -65,5 +104,5 @@ module.exports = {
     createOrder,
     getOrderById,
     updateOrder,
-    deleteOrder
+    deleteOrder,search
 };

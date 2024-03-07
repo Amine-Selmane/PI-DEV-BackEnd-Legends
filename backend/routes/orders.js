@@ -4,6 +4,8 @@ const orderController = require('../controller/orderController');
 
 // Get all orders
 router.get('/', orderController.getAllOrders);
+router.get('/search', orderController.search);
+
 
 // Create a new order
 router.post('/create', orderController.createOrder);
