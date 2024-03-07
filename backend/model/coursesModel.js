@@ -16,6 +16,9 @@ const coursesSchema = new mongoose.Schema({
     teacher_name: {
         type: String,
         required: true
+    },
+    nbrQuiz:{
+        type: Number 
     }
 })
 
