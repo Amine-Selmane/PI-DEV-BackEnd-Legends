@@ -63,7 +63,14 @@ const create = async (req, res) => {
   
 async function getall(req, res) {
   try {
-    const books = await Book.find({});
+    const { sortOrder } = req.query;
+        let sortQuery = {};
+        if (sortOrder === 'asc') {
+            sortQuery = { 'price': 1 };
+        } else if (sortOrder === 'desc') {
+            sortQuery = { 'price': -1 };
+        }
+    const books = await Book.find().sort(sortQuery);
 
     return res.status(200).json({
       count: books.length,
@@ -106,15 +113,15 @@ async function getByTitle(req, res) {
       return res.status(400).json({ message: "Title parameter is required for searching" });
     }
 
-    const books = await Book.find({ title: { $regex: title, $options: 'l' } });
+    const books = await Book.find({ title: { $regex: title, $options: 'i' } });
 
     return res.status(200).json({
       count: books.length,
       data: books,
     });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send({ message: error.message });
+    console.error(error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 

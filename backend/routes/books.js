@@ -20,7 +20,7 @@ router.put('/update/:id', bookController.update);
 router.delete('/deletebook/:id', bookController.deletebook);
 /////searching
 
-router.get('/books/search',bookController.getByTitle);
+router.get('/search',bookController.getByTitle);
 
 
 //////////////upload file//////////
