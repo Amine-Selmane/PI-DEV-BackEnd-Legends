@@ -6,14 +6,14 @@ const quizRouter = require("./routes/quiz");
 const User=require("./model/user");
 const Course=require("./model/course");
 const cors = require("cors");
-const colors = require('colors')
 const dotenv = require ("dotenv").config()
-const connectDB = require("./config/db")
 const bodyParser = require("body-parser");
 const port = process.env.PORT || 5000 
 const courses = require("./routes/coursesRoutes")
 const morgan = require('morgan');
 const router = require('./routes/restRoutes.js')
+const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
+
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
 
@@ -76,6 +76,10 @@ app.disable('x-powered-by');
 
 /** api routes for user */
 app.use('/api',router)
+
+/** disponibilite routes for disponibilite */
+app.use('/disponibilte', disponibiliteRoutes);
+
 
 app.use('/', EventRoutes); 
 app.use('/', ReservationRoutes); 
