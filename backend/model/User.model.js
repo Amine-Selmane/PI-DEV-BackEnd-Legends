@@ -28,7 +28,11 @@ const UserSchema = new mongoose.Schema({
     fonction: { type: String},
     profile: { type: String},
     sexe: { type: String},
-    dateNaiss : {type : Date}
+    dateNaiss : {type : Date},
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Courses' 
+      }
 });
 
 module.exports = mongoose.model('user', UserSchema)

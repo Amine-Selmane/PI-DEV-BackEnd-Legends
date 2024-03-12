@@ -302,26 +302,27 @@ async function registerAdmin(req, res) {
   }
   
 
-  /** POST: http://localhost:8080/api/register/student */
+  /** POST: http://localhost:8080/api/register */
 
   async function registerStudent(req, res) {
     try {
-      const { username, password,firstName, lastName, profile, email } = req.body;
+      const { username, password, firstName, lastName, profile, email, mobile , address, dateNaiss ,sexe, courseID ,role} = req.body;
   
-      // Check if the username or email already exists
+      // Vérifie si le nom d'utilisateur ou l'e-mail existe déjà
       const existingUsername = await UserModel.findOne({ username });
       const existingEmail = await UserModel.findOne({ email });
   
       if (existingUsername) {
-        throw new Error("Please use a unique username");
+        throw new Error("Veuillez utiliser un nom d'utilisateur unique");
       }
       if (existingEmail) {
-        throw new Error("Please use a unique email");
+        throw new Error("Veuillez utiliser un e-mail unique");
       }
   
-      // Hash the password
+      // Hachez le mot de passe
       const hashedPassword = await bcrypt.hash(password, 10);
   
+      // Créez un nouvel utilisateur avec le cours sélectionné
       const user = new UserModel({
         username,
         password: hashedPassword,
@@ -329,55 +330,64 @@ async function registerAdmin(req, res) {
         lastName,
         profile: profile || '',
         email,
-        role: 'student'
+        dateNaiss,
+        address,
+        mobile,
+        sexe,
+        role,
+        //role: 'student',
+        course: courseID // Assignez le cours choisi à l'utilisateur
       });
   
-      // Save the user
+      // Enregistrez l'utilisateur
       await user.save();
-      res.status(201).send({ msg: "Student registered successfully" });
+      res.status(201).send({ msg: "User enregistré avec succès" });
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
   }
+  
   
 
   /** POST: http://localhost:8080/api/register/teacher */
 
-  async function registerTeacher(req, res) {
-    try {
-      const { username, password,firstName, lastName, profile, email } = req.body;
+  // async function registerTeacher(req, res) {
+  //   try {
+  //     const { username, password, firstName, lastName, profile, email, courseID } = req.body;
   
-      // Check if the username or email already exists
-      const existingUsername = await UserModel.findOne({ username });
-      const existingEmail = await UserModel.findOne({ email });
+  //     // Vérifie si le nom d'utilisateur ou l'e-mail existe déjà
+  //     const existingUsername = await UserModel.findOne({ username });
+  //     const existingEmail = await UserModel.findOne({ email });
   
-      if (existingUsername) {
-        throw new Error("Please use a unique username");
-      }
-      if (existingEmail) {
-        throw new Error("Please use a unique email");
-      }
+  //     if (existingUsername) {
+  //       throw new Error("Veuillez utiliser un nom d'utilisateur unique");
+  //     }
+  //     if (existingEmail) {
+  //       throw new Error("Veuillez utiliser un e-mail unique");
+  //     }
   
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
+  //     // Hachez le mot de passe
+  //     const hashedPassword = await bcrypt.hash(password, 10);
   
-      const user = new UserModel({
-        username,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        profile: profile || '',
-        email,
-        role: 'teacher'
-      });
+  //     // Créez un nouvel utilisateur avec le cours sélectionné
+  //     const user = new UserModel({
+  //       username,
+  //       password: hashedPassword,
+  //       firstName,
+  //       lastName,
+  //       profile: profile || '',
+  //       email,
+  //       role: 'teacher',
+  //       course: courseID // Assignez le cours choisi à l'utilisateur
+  //     });
   
-      // Save the user
-      await user.save();
-      res.status(201).send({ msg: "Teacher registered successfully" });
-    } catch (error) {
-      res.status(500).send({ error: error.message });
-    }
-  }
+  //     // Enregistrez l'utilisateur
+  //     await user.save();
+  //     res.status(201).send({ msg: "Étudiant enregistré avec succès" });
+  //   } catch (error) {
+  //     res.status(500).send({ error: error.message });
+  //   }
+  // }
   
 /** POST: http://localhost:8080/api/login */
 
@@ -560,7 +570,7 @@ module.exports = {
     verifyOTP,
     createResetSession,
     resetPassword,
-    registerTeacher,
+    //registerTeacher,
     registerStudent,
     registerAdmin,
     getUserByEmail,
