@@ -27,7 +27,7 @@ router.get('/search',bookController.getByTitle);
 // Set up multer storage configuration
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'C:/Users/Soulaima/Desktop/uploads/'); // Set the destination folder for uploaded files
+      cb(null, 'C:/Users/soula/OneDrive/Bureau/uploads'); // Set the destination folder for uploaded files
     },
     filename: function (req, file, cb) {
       // Set the filename to be unique by appending current timestamp

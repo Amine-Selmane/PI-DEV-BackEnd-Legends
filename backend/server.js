@@ -6,7 +6,7 @@ const port = process.env.PORT || 5000;
 const cors = require('cors');
 const bookRouter = require("./routes/books");
 const orderRouter = require("./routes/orders");
-
+const ratingRouter = require("./routes/ratings");
 
 connectDB();
 
@@ -16,11 +16,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware CORS pour permettre l'accès depuis des origines différentes
-app.use(cors({}));
+app.use(cors());
 
 // Routes pour les livres
 app.use('/books', bookRouter);
 app.use('/orders', orderRouter);
+app.use('/ratings', ratingRouter);
+
 
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 
