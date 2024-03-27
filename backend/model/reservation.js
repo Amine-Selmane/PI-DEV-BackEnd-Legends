@@ -1,11 +1,21 @@
-const mongoose = require('mongoose');
 
-const reservationSchema = new mongoose.Schema({
-  name: String,
-  nbrPlaces: Number,
-  price: Number,
-});
+const mongoose = require("mongoose");
 
-const Reservation = mongoose.model('Reservation', reservationSchema);
+const reservationSchema = new mongoose.Schema(
+  {
+    customerEmail:{ type: String , required: true},
+    events: [
+      {  eventId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event'
+      }
+      , name: { type: String , required: true  }, quantity: { type: Number, default: 1 } },
+    ],
+    total: { type: Number, required: true },
+  },
+  { timestamps: true }
+);
 
-module.exports = Reservation;
+const Reservation = mongoose.model("Reservation", reservationSchema);
+
+exports.Reservation = Reservation;

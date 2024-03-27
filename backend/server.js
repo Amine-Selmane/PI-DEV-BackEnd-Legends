@@ -10,7 +10,7 @@ const morgan = require('morgan');
 const router = require('./routes/restRoutes.js')
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
-
+const stripe = require("./routes/Stripe");
 
 // const Event = require('./model/event');
 
@@ -33,6 +33,7 @@ app.use('/api',router)
 
 app.use('/', EventRoutes); 
 app.use('/', ReservationRoutes); 
+app.use("/", stripe);
 
 require('dotenv').config()
 
