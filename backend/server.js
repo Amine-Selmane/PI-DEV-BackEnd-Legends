@@ -26,6 +26,7 @@ app.use(morgan('tiny'));
 app.disable('x-powered-by');
 
 
+
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 
 /** api routes for user */

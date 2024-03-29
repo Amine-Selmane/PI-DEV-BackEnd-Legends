@@ -9,7 +9,7 @@ const reservationSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Event'
       }
-      , name: { type: String , required: true  }, quantity: { type: Number, default: 1 } },
+      , name: { type: String , required: true  }, quantity: { type: Number } },
     ],
     total: { type: Number, required: true },
   },
