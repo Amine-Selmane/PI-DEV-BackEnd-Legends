@@ -50,7 +50,7 @@ app.post("/chat", async (req, res) => {
 const bookRouter = require("./routes/books");
 const orderRouter = require("./routes/orders");
 const ratingRouter = require("./routes/ratings");
-const stripe = require("./routes/stripe");
+const stripe = require("./routes/stripeBook");
 
 
 app.use('/books', bookRouter);
