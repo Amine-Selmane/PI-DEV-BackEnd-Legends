@@ -89,4 +89,20 @@ const filterByPaymentStatus = async (req, res) => {
     }
 };
 
-module.exports = { getAllOrders, createOrder, getOrderById, updateOrder, deleteOrder, filterByPaymentStatus };
+
+
+// Controller to get order history for a customer
+const getOrderHistory = async (req, res) => {
+    try {
+        const customerId = req.params.customerId; // Assuming the customer ID is provided in the request params
+        const orders = await Order.find({ customerId }).populate('items.itemId');
+        res.json({ success: true, orders });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to fetch order history.' });
+    }
+};
+
+module.exports = { getOrderHistory };
+
+module.exports = { getAllOrders, createOrder, getOrderById, updateOrder, deleteOrder, filterByPaymentStatus, getOrderHistory };

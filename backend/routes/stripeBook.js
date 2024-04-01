@@ -1,10 +1,8 @@
 const express = require("express");
 const Stripe = require("stripe");
-const Book = require("../model/book"); // Import the Book model
 const Order = require("../model/order"); // Import the Order model
 const nodemailer = require('nodemailer'); // Import Nodemailer for sending emails
 const PDFDocument = require('pdfkit'); // Import PDFKit for generating PDFs
-const fs = require('fs'); // Import FileSystem module
 
 require("dotenv").config();
 const router = express.Router();
@@ -21,33 +19,17 @@ const transporter = nodemailer.createTransport({
     pass: 'Abc93461',
   },
 });
-const readFileContent = async (filePath) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  });
-};
+
 // Function to generate PDF content
-const generatePDF = async (items) => {
+const generatePDF = async (orderDetails) => {
   const doc = new PDFDocument();
-  doc.text('Book Details\n\n');
+  doc.text('Order Details\n\n');
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    const fileContent = await readFileContent(item.file); // Read file content
-
-    doc.text(`Book ${i + 1}:`);
-    doc.text(`Title: ${item.title}`);
-    doc.text(`Description: ${item.description}`);
-    doc.text('Content:');
-    doc.text(fileContent); // Include file content in the PDF
-    doc.text('\n');
-  }
+  doc.text(`Customer ID: ${orderDetails.customerId}`);
+  doc.text(`Payment Intent ID: ${orderDetails.paymentIntentId}`);
+  doc.text(`Subtotal: ${orderDetails.subtotal}`);
+  doc.text(`Total: ${orderDetails.total}`);
+  doc.text(`Payment Status: ${orderDetails.payment_status}`);
 
   doc.end();
   return doc;
@@ -146,51 +128,36 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-// Create order function
 const createOrder = async (customer, data) => {
-  const Items = JSON.parse(customer.metadata.cart);
-
-  const items = Items.map((item) => {
-    return {
-      productId: item.id,
-      quantity: item.cartQuantity,
-    };
-  });
-
-  const newOrder = new Order({
-    userId: customer.metadata.userId,
+  const orderDetails = {
     customerId: data.customer,
     paymentIntentId: data.payment_intent,
-    items,
     subtotal: data.amount_subtotal,
     total: data.amount_total,
     shipping: data.customer_details,
     payment_status: data.payment_status,
-  });
+  };
 
   try {
-    const savedOrder = await newOrder.save();
+    const savedOrder = await new Order(orderDetails).save();
     console.log("Processed Order:", savedOrder);
 
-    // Attach book files to the email
+    // Generate PDF content
+    const pdfContent = await generatePDF(orderDetails);
+
+    // Attach PDF to the email
     const emailOptions = {
       from: 'soulaima.ftouhi@esprit.tn',
       to: customer.email,
       subject: 'Order Confirmation',
-      html: `<p>Your order has been successfully placed. Here is your book PDF :</p>`, // HTML text before the PDF attachment
-      attachments: [],
-
+      html: `<p>Your order has been successfully placed. Here is your order details PDF :</p>`, // HTML text before the PDF attachment
+      attachments: [{
+        filename: 'order_details.pdf',
+        content: pdfContent,
+      }],
     };
 
-    for (const item of Items) {
-      // Attach each book file
-      emailOptions.attachments.push({
-        filename: item.title + ".pdf", // Assuming PDF format, you may need to adjust this
-        path: item.file, // Path to the book file
-      });
-    }
-
-    // Send email with book file attachments
+    // Send email with order details PDF attachment
     transporter.sendMail(emailOptions, async (error, info) => {
       if (error) {
         console.error('Error sending email:', error);
@@ -261,6 +228,6 @@ router.post(
 
     res.status(200).end();
   }
-);
+); 
 
 module.exports = router;

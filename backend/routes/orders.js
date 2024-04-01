@@ -4,7 +4,7 @@ const orderController = require('../controller/orderController');
 
 // Get all orders
 router.get('/', orderController.getAllOrders);
-router.get('/orders/filter/: payment_status', orderController.filterByPaymentStatus);
+router.get('/filter/: payment_status', orderController.filterByPaymentStatus);
 
 
 // Create a new order
@@ -18,5 +18,7 @@ router.put('/updateOrder/:id', orderController.updateOrder);
 
 // Delete an order by ID
 router.delete('/deleteOrder/:id', orderController.deleteOrder);
+
+router.get('/history/:customerId', orderController.getOrderHistory);
 
 module.exports = router;
