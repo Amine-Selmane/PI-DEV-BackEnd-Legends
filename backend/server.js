@@ -10,6 +10,7 @@ const dotenv = require ("dotenv").config()
 const bodyParser = require("body-parser");
 const port = process.env.PORT || 5000 
 const courses = require("./routes/coursesRoutes")
+const schedule = require("./routes/scheduleRoutes")
 const morgan = require('morgan');
 const router = require('./routes/restRoutes.js')
 const EventRoutes = require('./routes/EventRoutes');
@@ -60,6 +61,7 @@ app.get('/Courses', async (req, res) => {
 
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 app.use('/courses' , courses)
+app.use('/schedule', schedule)
 app.use("/reports", reportRouter);
 app.use("/quiz",quizRouter);
 
