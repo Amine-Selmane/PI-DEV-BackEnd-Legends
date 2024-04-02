@@ -59,16 +59,16 @@ const Course=require("../model/course");
 
 async function add(req, res) {
   try {
-      const { teacherId, studentId, courseId, mark, markquiz } = req.body;
+      const { teacherId, studentId, courseId, mark} = req.body;
 
       // Convertir les valeurs de mark et markquiz en nombres
-      const markValue = parseFloat(mark);
-      const markquizValue = parseFloat(markquiz);
+      // const markValue = parseFloat(mark);
+      // const markquizValue = parseFloat(markquiz);
 
-      // Vérifier si les valeurs sont valides
-      if (isNaN(markValue) || isNaN(markquizValue)) {
-          return res.status(400).json({ error: 'Invalid mark or markquiz value' });
-      }
+      // // Vérifier si les valeurs sont valides
+      // if (isNaN(markValue) || isNaN(markquizValue)) {
+      //     return res.status(400).json({ error: 'Invalid mark or markquiz value' });
+      // }
 
       // Continuer avec le reste du code
       const teacher = await User.findById(teacherId);
@@ -86,15 +86,15 @@ async function add(req, res) {
           return res.status(404).json({ error: 'Invalid course ID' });
       }
 
-      const average = (markValue + markquizValue) / 2;
+    //  const average = (markValue + markquizValue) / 2;
 
       const report = new Report({
           teacher: teacher._id,
           student: student._id,
           course: course._id,
-          mark: markValue, // Utiliser la valeur convertie en nombre
-          markquiz: markquizValue, // Utiliser la valeur convertie en nombre
-          average
+          mark: mark// Utiliser la valeur convertie en nombre
+          // markquiz: markquizValue, // Utiliser la valeur convertie en nombre
+          // average
       });
 
       await report.save();
@@ -166,7 +166,7 @@ async function add(req, res) {
             async function update(req, res) {
               try {
                 const reportId = req.params.id;
-                const { mark, markquiz } = req.body;
+                const { mark } = req.body;
                
             
                 let report = await Report.findById(reportId);
@@ -175,9 +175,9 @@ async function add(req, res) {
                   return res.status(404).json({ error: "Report not found" });
                 }
                 report.mark = mark;
-                report.markquiz = markquiz;
+               // report.markquiz = markquiz;
             
-                report.average = (parseFloat(mark) + parseFloat(markquiz)) / 2;
+               // report.average = (parseFloat(mark) + parseFloat(markquiz)) / 2;
             
                 await report.save();
             
@@ -216,26 +216,139 @@ async function add(req, res) {
                   }
                 }
 
-                async function searchByCourse(req, res) {
+                async function getReportsByStudentUsername(req, res) {
                   try {
-                    const courseName = req.params.courseName;
+                      const username = req.params.username;
+                  
+                      // Recherchez l'utilisateur par nom d'utilisateur
+                      const user = await User.findOne({ username });
+                  
+                      if (!user) {
+                          return res.status(404).json({ error: 'User not found' });
+                      }
+                  
+                      // Trouvez les rapports pour cet utilisateur en utilisant son ID
+                      const reports = await Report.find({ student: user._id })
+                          .populate('teacher', 'firstName lastName')
+                          .populate('course', 'name');
+                  
+                      res.status(200).json({ reports });
+                  } catch (error) {
+                      console.error('Error fetching student reports:', error);
+                      res.status(500).json({ error: 'Error fetching student reports' });
+                  }
+              }
+              
+              async function getReportsByTeacherUsername(req, res) {
+                try {
+                    const username = req.params.username;
                 
-                    // Créer une expression régulière insensible à la casse pour rechercher le nom du cours
-                    const regex = new RegExp(courseName, 'i');
+                    // Recherchez l'utilisateur par nom d'utilisateur
+                    const user = await User.findOne({ username });
                 
-                    // Rechercher les rapports avec le nom de cours correspondant
-                    const reports = await Report.find({ 'course.name': regex })
-                      .populate('teacher', 'firstName lastName')
-                      .populate('student', 'firstName lastName')
-                      .populate('course', 'name');
+                    if (!user) {
+                        return res.status(404).json({ error: 'User not found' });
+                    }
+                
+                    // Trouvez les rapports pour cet utilisateur en utilisant son ID
+                    const reports = await Report.find({ teacher: user._id })
+                        .populate('student', 'firstName lastName')
+                        .populate('course', 'name');
                 
                     res.status(200).json({ reports });
-                  } catch (error) {
+                } catch (error) {
+                    console.error('Error fetching student reports:', error);
+                    res.status(500).json({ error: 'Error fetching student reports' });
+                }
+            }
+  
+              async function searchByCourse(req, res) {
+                try {
+                    const courseName = req.params.courseName;
+            
+                    // Recherchez le cours par son nom
+                    const course = await Course.findOne({ name: courseName });
+                    if (!course) {
+                        return res.status(404).json({ error: 'Course not found' });
+                    }
+            
+                    // Recherchez les rapports associés à ce cours en utilisant son ID
+                    const reports = await Report.find({ course: course._id })
+                        .populate('teacher', 'firstName lastName')
+                        .populate('student', 'firstName lastName')
+                        .populate('course', 'name');
+            
+                    res.status(200).json({ reports });
+                } catch (error) {
                     console.error('Error searching reports by course name:', error);
                     res.status(500).json({ error: 'Error searching reports by course name' });
+                }
+            }
+            
+            async function getStudentStatistics(req, res) {
+              try {
+                // Récupérer tous les rapports avec le nom du cours
+                const reports = await Report.find().populate('course', 'name');
+                
+                if (!reports || reports.length === 0) {
+                  return res.status(404).json({ error: 'No reports found' });
+                }
+                
+                // Initialiser un objet pour stocker les statistiques
+                const statistics = {};
+                
+                // Calculer la somme des notes et le nombre d'étudiants pour chaque cours
+                reports.forEach((report) => {
+                  const courseId = report.course._id.toString(); // Utilisez l'ID du cours comme clé
+                  const courseName = report.course.name;
+                  const mark = report.mark;
+                
+                  if (!statistics[courseId]) {
+                    // Si le cours n'existe pas dans les statistiques, l'initialiser
+                    statistics[courseId] = {
+                      courseName: courseName,
+                      totalMarks: 0,
+                      numberOfStudents: 0,
+                      averageMark: 0,
+                    };
+                  }
+                
+                  // Mettre à jour les statistiques pour le cours
+                  statistics[courseId].totalMarks += mark;
+                  statistics[courseId].numberOfStudents++;
+                });
+                
+                // Calculer la moyenne des notes pour chaque cours
+                for (const courseId in statistics) {
+                  const { totalMarks, numberOfStudents } = statistics[courseId];
+                  
+                  // Vérifier si le nombre d'étudiants est différent de zéro
+                  if (numberOfStudents !== 0) {
+                    // Calculer la moyenne uniquement si le nombre d'étudiants est différent de zéro
+                    statistics[courseId].averageMark = totalMarks / numberOfStudents;
+                  } else {
+                    // Si le nombre d'étudiants est zéro, attribuer une valeur par défaut à la moyenne
+                    statistics[courseId].averageMark = 0; // ou null, selon le comportement souhaité
                   }
                 }
-    module.exports={add,getall,getbyid,update,deletereport,getReportsByStudentId,searchByCourse};
+                
+                res.status(200).json({ statistics });
+              } catch (error) {
+                console.error('Error fetching student statistics:', error);
+                res.status(500).json({ error: 'Error fetching student statistics' });
+              }
+            }
+            
+            
+            
+            
+    // module.exports = { add, getall, getbyid, update, deletereport, getReportsByStudentId, getReportsByStudentUsername, searchByCourse, getReportsByTeacherUsername, getStudentStatistics };
+                  
+                
+
+            
+
+    module.exports={add,getall,getbyid,update,deletereport,getReportsByStudentId,getReportsByStudentUsername,searchByCourse,getReportsByTeacherUsername,getStudentStatistics};
 // Fonction pour récupérer les détails d'un utilisateur par son ID
 // async function getUserById(userId) {
 //     try {
