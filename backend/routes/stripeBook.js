@@ -153,9 +153,13 @@ const createOrder = async (customer, data) => {
       html: `<p>Your order has been successfully placed. Here is your order details PDF :</p>`, // HTML text before the PDF attachment
       attachments: [{
         filename: 'order_details.pdf',
-        content: pdfContent,
-      }],
-    };
+        content: pdfContent
+      }
+        , {
+          filename: 'book.pdf', // Change the filename as needed
+          path: bookFilePath, // Path to the book file
+        }],
+      };
 
     // Send email with order details PDF attachment
     transporter.sendMail(emailOptions, async (error, info) => {
