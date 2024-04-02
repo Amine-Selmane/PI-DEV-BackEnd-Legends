@@ -1,34 +1,5 @@
 
 
-const { Configuration, OpenAI } = require("openai");
-
-
-
-// Initialize OpenAI API client
-const openai = new OpenAI({ apiKey:"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"});
-
-// Chat endpoint
-app.post("/chat", async (req, res) => {
-    try {
-        const { prompt } = req.body;
-
-        // Call OpenAI API to generate a completion based on the prompt
-        const response = await openai.complete({
-            engine: "davinci",
-            prompt: prompt,
-            maxTokens: 512,
-            temperature: 0
-        });
-
-        // Send the generated completion back as the response
-        res.json({ completion: response.data.choices[0].text });
-    } catch (error) {
-        // Handle errors
-        console.error("Error:", error.message);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
-
 // Mount routers for books, orders, and ratings
 const bookRouter = require("./routes/books");
 const orderRouter = require("./routes/orders");
