@@ -1,11 +1,15 @@
 const express = require ("express")
+const mongoose = require('mongoose');
+const colors = require('colors')
 const connectDB = require("./config/db")
 const reportRouter = require("./routes/reports");
 const quizRouter = require("./routes/quiz");
+const questionRouter = require("./routes/questions");
 const User=require("./model/user");
 const Course=require("./model/course");
+const QuestionModel = require("./model/question");
+const Quiz=require("./model/quiz.js");
 const cors = require("cors");
-const colors = require('colors')
 const dotenv = require ("dotenv").config()
 const bodyParser = require("body-parser");
 const port = process.env.PORT || 5000 
@@ -46,7 +50,17 @@ app.get('/students', async (req, res) => {
         res.status(500).json({ error: 'Error fetching students' });
     }
 });
-
+// Route pour récupérer tous les grades des étudiants
+app.get('/grades', async (req, res) => {
+    try {
+      // Utilisez la méthode distinct de MongoDB pour récupérer tous les grades uniques des étudiants
+      const grades = await User.distinct('grade', { role: 'student' });
+      res.json(grades); // Renvoyez la liste des grades des étudiants au client
+    } catch (error) {
+      console.error('Error fetching student grades:', error);
+      res.status(500).json({ error: 'Error fetching student grades' });
+    }
+  });
 
 // Route pour récupérer tous les cours
 app.get('/Courses', async (req, res) => {
@@ -59,11 +73,24 @@ app.get('/Courses', async (req, res) => {
     }
 });
 
+app.get('/questions', async (req, res) => {
+    try {
+        const questions = await QuestionModel.find();
+        res.json(questions);
+    } catch (error) {
+        console.error('Error fetching questions:', error);
+        res.status(500).json({ error: 'Error fetching questions' });
+    }
+});
+// Enregistrez le modèle Question avec Mongoose
+//const Question = mongoose.model('Question', QuestionSchema);
+
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 app.use('/courses' , courses)
 app.use('/schedule', schedule)
 app.use("/reports", reportRouter);
 app.use("/quiz",quizRouter);
+app.use("/questions",questionRouter);
 
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
