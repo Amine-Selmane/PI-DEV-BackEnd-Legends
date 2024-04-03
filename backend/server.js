@@ -76,6 +76,8 @@ app.disable('x-powered-by');
 
 /** api routes for user */
 app.use('/api',router)
+app.use('/courses',courses)
+
 
 /** disponibilite routes for disponibilite */
 app.use('/disponibilte', disponibiliteRoutes);

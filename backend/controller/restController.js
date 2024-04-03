@@ -6,7 +6,8 @@ const jwt =  require ('jsonwebtoken');
 const ENV = require  ('../config.js');
 const otpGenerator = require  ('otp-generator');
 const sendAccountDetailsEmail = require('./mailer.js')
-
+const DisponibiliteModel = require('../model/disponibilite.Model.js');
+const Courses = require('../model/coursesModel.js');
 
 /** middlware for verify user */
  async function verifyUser(req, res, next) {
@@ -302,11 +303,9 @@ async function registerAdmin(req, res) {
   }
   
 
-  /** POST: http://localhost:8080/api/register */
-
   async function registerStudent(req, res) {
     try {
-      const { username, password, firstName, lastName, profile, email, mobile , address, dateNaiss ,sexe, courseID ,role} = req.body;
+      const { username, password, firstName, lastName, profile, email, mobile, address, dateNaiss, sexe, courses, role, availability } = req.body;
   
       // Vérifie si le nom d'utilisateur ou l'e-mail existe déjà
       const existingUsername = await UserModel.findOne({ username });
@@ -322,7 +321,7 @@ async function registerAdmin(req, res) {
       // Hachez le mot de passe
       const hashedPassword = await bcrypt.hash(password, 10);
   
-      // Créez un nouvel utilisateur avec le cours sélectionné
+      // Créez un nouvel utilisateur avec les cours sélectionnés
       const user = new UserModel({
         username,
         password: hashedPassword,
@@ -335,17 +334,73 @@ async function registerAdmin(req, res) {
         mobile,
         sexe,
         role,
-        //role: 'student',
-        course: courseID // Assignez le cours choisi à l'utilisateur
+        courses: courses // Assignez la liste de cours choisis à l'utilisateur
       });
   
       // Enregistrez l'utilisateur
-      await user.save();
-      res.status(201).send({ msg: "User enregistré avec succès" });
+  await user.save();
+  
+      // Enregistrez les disponibilités de l'utilisateur
+      if (availability) {
+        for (const { jour, heureDebut, heureFin } of availability) {
+          await DisponibiliteModel.create({
+            jour,
+            heureDebut,
+            heureFin,
+            utilisateur: user._id
+          });
+        }
+      }
+  
+      res.status(201).send({ msg: "Utilisateur enregistré avec succès" });
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
   }
+  
+
+//   async function registerStudent(req, res) {
+//     try {
+//         const { username, password, firstName, lastName, profile, email, mobile, address, dateNaiss, sexe, courses, role } = req.body;
+
+//         // Vérifie si le nom d'utilisateur ou l'e-mail existe déjà
+//         const existingUsername = await UserModel.findOne({ username });
+//         const existingEmail = await UserModel.findOne({ email });
+
+//         if (existingUsername) {
+//             throw new Error("Veuillez utiliser un nom d'utilisateur unique");
+//         }
+//         if (existingEmail) {
+//             throw new Error("Veuillez utiliser un e-mail unique");
+//         }
+
+//         // Hachez le mot de passe
+//         const hashedPassword = await bcrypt.hash(password, 10);
+
+//         // Créez un nouvel utilisateur avec les cours sélectionnés
+//         const user = new UserModel({
+//             username,
+//             password: hashedPassword,
+//             firstName,
+//             lastName,
+//             profile: profile || '',
+//             email,
+//             dateNaiss,
+//             address,
+//             mobile,
+//             sexe,
+//             role,
+//             courses: courses // Assignez la liste de cours choisis à l'utilisateur
+//         });
+
+//         // Enregistrez l'utilisateur
+//         await user.save();
+//         res.status(201).send({ msg: "Utilisateur enregistré avec succès" });
+//     } catch (error) {
+//         res.status(500).send({ error: error.message });
+//     }
+// }
+
   
   
 
@@ -556,7 +611,35 @@ res.status(200).send("deleted");
 }
 
 
+async function CoursesByUser(req, res) {
+  try {
+    const userId = req.params.userId; // Supposons que vous recevez l'ID de l'utilisateur dans les paramètres de la requête
+    
+    const user = await UserModel.findById(userId).populate('courses');
+    // Utilisez la méthode findById pour trouver l'utilisateur par son ID
+    // Utilisez la méthode populate pour peupler le champ 'courses' avec les données des cours associés
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    
+    const courses = user.courses;
+    // Récupérez tout le tableau de cours à partir de la propriété 'courses' de l'objet user
+    
+    res.json(courses);
+    // Retournez le tableau de cours dans la réponse JSON
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des cours' });
+  }
+}
+
+
+
 module.exports = {
+  
+  CoursesByUser,
     verifyUser,
     add,
     getall,

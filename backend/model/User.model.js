@@ -29,10 +29,10 @@ const UserSchema = new mongoose.Schema({
     profile: { type: String},
     sexe: { type: String},
     dateNaiss : {type : Date},
-    course: {
+    courses: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Courses' 
-      }
+        ref: 'Courses' // Assurez-vous que c'est la bonne référence à votre modèle de cours
+    }]
 });
 
 module.exports = mongoose.model('user', UserSchema)

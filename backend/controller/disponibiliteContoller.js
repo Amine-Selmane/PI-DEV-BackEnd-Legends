@@ -136,12 +136,64 @@ async function addDisponibilite(req, res) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   }
+  async function getAvailabilityByUtilisateur(utilisateurId) {
+    try {
+      const disponibilites = await DisponibiliteModel.find({ utilisateur: utilisateurId });
+      return disponibilites;
+    } catch (error) {
+      // Gérez les erreurs de requête ici
+      console.error('Erreur lors de la récupération des disponibilités :', error);
+      throw error;
+    }
+  }
+  
+ 
+  async function getDisponibiliteByUser  (req, res)  {
+    const { userId } = req.params; // Supposons que vous récupériez l'ID de l'utilisateur à partir des paramètres de la requête
+    
+    try {
+        // Utilisation de la méthode statique du modèle pour récupérer les disponibilités par utilisateur
+        const disponibilites = await DisponibiliteModel.find({ utilisateur: userId });
+        res.status(200).json(disponibilites);
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de la récupération des disponibilités par utilisateur", error: error.message });
+    }
+};
+
+const updateDisponibilites = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { selectedSlots } = req.body; // Les nouvelles disponibilités sélectionnées
+
+    // Supprimer les anciennes disponibilités de l'utilisateur
+    await DisponibiliteModel.deleteMany({ utilisateur: userId });
+
+    // Ajouter les nouvelles disponibilités
+    const nouvellesDisponibilites = selectedSlots.map(({ jour, heureDebut, heureFin }) => ({
+      jour,
+      heureDebut,
+      heureFin,
+      utilisateur: userId,
+      isChecked: true
+    }));
+
+    await DisponibiliteModel.insertMany(nouvellesDisponibilites);
+
+    res.status(200).json({ message: 'Disponibilités mises à jour avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des disponibilités :', error);
+    res.status(500).json({ error: 'Une erreur est survenue lors de la mise à jour des disponibilités' });
+  }
+};
+
+
 
   module.exports = {
     addDisponibilite,
     getAllDisponibilites,
     updateDisponibiliteById,
     deleteDisponibilite,
-    getById
-
+    getById,
+    getDisponibiliteByUser,
+    updateDisponibilites
 }

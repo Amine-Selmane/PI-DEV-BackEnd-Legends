@@ -8,6 +8,7 @@ const {Auth , localVariables} =  require ('../middlware/auth.js');
 
 // router.get('/',method name here)
 /** Get methods*/
+router.route('/:userId/courses').get(controller.CoursesByUser);
 router.route('/user/:username').get(controller.getUser);//user with username
 router.route('/userToken').get(Auth,controller.getUserToken);//
 router.route('/user/ById/:userId').get(controller.getById);
@@ -28,6 +29,7 @@ router.route('/registerMail').post(registerMail);//send the email
 router.route('/sendOTP').post(sendOTPEmail);//send the email
 router.route('/authenticate').post(controller.verifyUser,(req,res) => res.end());//authenticate user
 router.route('/login').post(controller.verifyUser,controller.login);//login in app
+
 router.post("/add",sendAccountDetailsEmail,controller.add);
 
 // router.put('/:id',method name here)
