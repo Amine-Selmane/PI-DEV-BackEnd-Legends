@@ -24,7 +24,11 @@ const setCourse = asyncHandler(async (req, res) => {
         const courses = await Courses.create({
             name: req.body.name,
             classroom: req.body.classroom,
-            teacher_name: req.body.teacher_name
+            duration: req.body.duration,
+            teacher_name: req.body.teacher_name,
+            nbrQuiz: req.body.nbrQuiz,
+            halfYearlyPrice: req.body.halfYearlyPrice,
+            yearlyPrice: req.body.yearlyPrice
         })
 
         res.status(200).json({ courses: courses, message: 'Course added successfuly' })
@@ -65,14 +69,14 @@ const deleteCourse = asyncHandler(async (req, res) => {
 
 })
 
-    const getById = asyncHandler(async (req, res) => {
-        const courses = await Courses.findById(req.params.id)
-        // Send response back if user is
-        res.status(200).json(courses)
-    })
+const getById = asyncHandler(async (req, res) => {
+    const courses = await Courses.findById(req.params.id)
+    // Send response back if user is
+    res.status(200).json(courses)
+})
 
 
-    
+
 
 module.exports = {
     getCourse,
