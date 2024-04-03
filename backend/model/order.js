@@ -16,7 +16,8 @@ const orderSchema = new mongoose.Schema({
     total: { type: Number, required: true },
     shipping: { type: Object, required: true },
     delivery_status: { type: String, default: "pending" },
-    payment_status: { type: String, required: true }
+    payment_status: { type: String, required: true },
+    
 });
 
 const Order = mongoose.model("Order", orderSchema);

@@ -1,13 +1,15 @@
+
 // Start the server
 
-const express = require('express');
+const express = require ("express")
 const app = express();
+
+const colors = require('colors')
 const reportRouter = require("./routes/reports");
 const quizRouter = require("./routes/quiz");
 const User=require("./model/user");
 const Course=require("./model/course");
 const cors = require("cors");
-const colors = require('colors')
 const dotenv = require ("dotenv").config()
 const connectDB = require("./config/db")
 const bodyParser = require("body-parser");
@@ -18,34 +20,10 @@ const router = require('./routes/restRoutes.js')
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
 
-const { Configuration, OpenAI } = require("openai");
-
-
 
 // Initialize OpenAI API client
-const openai = new OpenAI({ apiKey:"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"});
 
 // Chat endpoint
-app.post("/chat", async (req, res) => {
-    try {
-        const { prompt } = req.body;
-
-        // Call OpenAI API to generate a completion based on the prompt
-        const response = await openai.complete({
-            engine: "davinci",
-            prompt: prompt,
-            maxTokens: 512,
-            temperature: 0
-        });
-
-        // Send the generated completion back as the response
-        res.json({ completion: response.data.choices[0].text });
-    } catch (error) {
-        // Handle errors
-        console.error("Error:", error.message);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
 
 // Mount routers for books, orders, and ratings
 const bookRouter = require("./routes/books");
@@ -54,19 +32,12 @@ const ratingRouter = require("./routes/ratings");
 const stripe = require("./routes/stripeBook");
 
 
-app.use('/books', bookRouter);
-app.use('/orders', orderRouter);
-app.use('/ratings', ratingRouter);
-app.use('/api/stripe', stripe);
-
-
-
-
 
 // const Event = require('./model/event');
 
 
 connectDB()
+
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -116,6 +87,10 @@ app.use(morgan('tiny'));
 app.disable('x-powered-by');
 
 
+app.use('/books', bookRouter);
+app.use('/orders', orderRouter);
+app.use('/ratings', ratingRouter);
+app.use('/api/stripe', stripe);
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 
 /** api routes for user */

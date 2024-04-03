@@ -4,7 +4,7 @@ const orderController = require('../controller/orderController');
 
 // Get all orders
 router.get('/', orderController.getAllOrders);
-router.get('/filter/: payment_status', orderController.filterByPaymentStatus);
+router.get('/filter/:deliveryStatus', orderController.filterByDeliveryStatus);
 
 
 // Create a new order

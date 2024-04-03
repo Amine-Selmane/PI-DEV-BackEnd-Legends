@@ -3,6 +3,7 @@ const Stripe = require("stripe");
 const Order = require("../model/order"); // Import the Order model
 const nodemailer = require('nodemailer'); // Import Nodemailer for sending emails
 const PDFDocument = require('pdfkit'); // Import PDFKit for generating PDFs
+const twilio = require('twilio');
 
 require("dotenv").config();
 const router = express.Router();
@@ -20,6 +21,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Create Twilio client
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 // Function to generate PDF content
 const generatePDF = async (orderDetails) => {
   const doc = new PDFDocument();
@@ -35,14 +39,39 @@ const generatePDF = async (orderDetails) => {
   return doc;
 };
 
+// Function to send SMS notification
+const sendSMS = async (phoneNumber, message) => {
+  try {
+    await twilioClient.messages.create({
+      body: message,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: phoneNumber,
+    });
+    console.log("SMS notification sent successfully.");
+  } catch (error) {
+    console.error("Error sending SMS notification:", error);
+  }
+};
+const truncateMetadata = (metadata) => {
+  for (const key in metadata) {
+    if (typeof metadata[key] === 'string' && metadata[key].length > 500) {
+      metadata[key] = metadata[key].substring(0, 500);
+    }
+  }
+  return metadata;
+};
 router.post("/create-checkout-session", async (req, res) => {
   try {
-    const customer = await stripe.customers.create({
-      metadata: {
-        userId: req.body.userId,
-        cart: JSON.stringify(req.body.cartItems),
-      },
+    // Truncate metadata values if necessary
+    const truncatedMetadata = truncateMetadata({
+      userId: req.body.userId,
+      cart: JSON.stringify(req.body.cartItems),
     });
+
+    const customer = await stripe.customers.create({
+      metadata: truncatedMetadata,
+    });
+   
 
     const line_items = req.body.cartItems.map((item) => {
       return {
@@ -128,40 +157,59 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
+// Function to create order
 const createOrder = async (customer, data) => {
-  const orderDetails = {
-    customerId: data.customer,
-    paymentIntentId: data.payment_intent,
-    subtotal: data.amount_subtotal,
-    total: data.amount_total,
-    shipping: data.customer_details,
-    payment_status: data.payment_status,
-  };
-
   try {
-    const savedOrder = await new Order(orderDetails).save();
+    const items = JSON.parse(customer.metadata.cart);
+    const newOrder = new Order({
+      userId: customer.metadata.userId,
+      customerId: data.customer,
+      paymentIntentId: data.payment_intent,
+      items: items.map(item => ({
+        productId: item.id,
+        quantity: item.cartQuantity,
+      })),
+      subtotal: data.amount_subtotal,
+      total: data.amount_total,
+      shipping: data.customer_details,
+      payment_status: data.payment_status,
+    });
+
+    // Extract customer's phone number from the customer_details object
+    const customerPhoneNumber = data.customer_details.phone;
+
+    // Save the order to the database
+    const savedOrder = await newOrder.save();
     console.log("Processed Order:", savedOrder);
 
     // Generate PDF content
-    const pdfContent = await generatePDF(orderDetails);
+    const pdfContent = await generatePDF(savedOrder);
 
     // Attach PDF to the email
+    const emailAttachments = [{
+      filename: 'order_details.pdf',
+      content: pdfContent
+    }];
+
+    // Attach book files to the email
+    items.forEach(item => {
+      if (item.file) {
+        emailAttachments.push({
+          filename: `${item.title}.pdf`,
+          path: item.file
+        });
+      }
+    });
+
     const emailOptions = {
       from: 'soulaima.ftouhi@esprit.tn',
       to: customer.email,
       subject: 'Order Confirmation',
       html: `<p>Your order has been successfully placed. Here is your order details PDF :</p>`, // HTML text before the PDF attachment
-      attachments: [{
-        filename: 'order_details.pdf',
-        content: pdfContent
-      }
-        , {
-          filename: 'book.pdf', // Change the filename as needed
-          path: bookFilePath, // Path to the book file
-        }],
-      };
+      attachments: emailAttachments,
+    };
 
-    // Send email with order details PDF attachment
+    // Send email with order details PDF attachment and book files
     transporter.sendMail(emailOptions, async (error, info) => {
       if (error) {
         console.error('Error sending email:', error);
@@ -169,6 +217,10 @@ const createOrder = async (customer, data) => {
         console.log('Email sent:', info.response);
       }
     });
+
+    // Send SMS notification to the customer
+    const message = "Your order has been successfully placed .Thank you!";
+    await sendSMS(customerPhoneNumber, message);
   } catch (err) {
     console.log(err);
   }
@@ -232,6 +284,6 @@ router.post(
 
     res.status(200).end();
   }
-); 
+);
 
 module.exports = router;

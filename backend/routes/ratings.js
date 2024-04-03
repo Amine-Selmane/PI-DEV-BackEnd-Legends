@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { addRating,getAllRatingsForBook ,getAverageRatingForBook} = require('../controller/ratingController');
+const Rating = require('../model/rating');
+
 
 // Route to add a rating to a book
 router.post('/addRate', addRating);
@@ -24,4 +26,6 @@ router.get('/getuserreviewforbook/:bookId/:userId', async (req, res) => {
     }
   });
 
+
+  
 module.exports = router;

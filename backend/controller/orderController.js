@@ -35,8 +35,8 @@ const createOrder = async (req, res) => {
 // Controller to get order by ID
 const getOrderById = async (req, res) => {
     try {
-        const { orderId } = req.params;
-        const order = await Order.findById(orderId);
+        const { id } = req.params;
+        const order = await Order.findById(id);
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
@@ -50,8 +50,8 @@ const getOrderById = async (req, res) => {
 // Controller to update order by ID
 const updateOrder = async (req, res) => {
     try {
-        const { orderId } = req.params;
-        const updatedOrder = await Order.findByIdAndUpdate(orderId, req.body, { new: true });
+        const { id } = req.params;
+        const updatedOrder = await Order.findByIdAndUpdate(id, req.body, { new: true });
         if (!updatedOrder) {
             return res.status(404).json({ error: 'Order not found' });
         }
@@ -65,8 +65,8 @@ const updateOrder = async (req, res) => {
 // Controller to delete order by ID
 const deleteOrder = async (req, res) => {
     try {
-        const { orderId } = req.params;
-        const deletedOrder = await Order.findByIdAndDelete(orderId);
+        const { id } = req.params;
+        const deletedOrder = await Order.findByIdAndDelete(id);
         if (!deletedOrder) {
             return res.status(404).json({ error: 'Order not found' });
         }
@@ -76,20 +76,6 @@ const deleteOrder = async (req, res) => {
         res.status(500).json({ error: 'Failed to delete order' });
     }
 };
-
-// Controller to filter orders by payment status
-const filterByPaymentStatus = async (req, res) => {
-    try {
-        const { paymentStatus } = req.params;
-        const orders = await Order.find({ payment_status: paymentStatus });
-        res.json(orders);
-    } catch (error) {
-        console.error('Error filtering orders by payment status:', error);
-        res.status(500).json({ error: 'Failed to filter orders' });
-    }
-};
-
-
 
 // Controller to get order history for a customer
 const getOrderHistory = async (req, res) => {
@@ -102,7 +88,17 @@ const getOrderHistory = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to fetch order history.' });
     }
 };
+const filterByDeliveryStatus = async (req, res) => {
+    try {
+        const { deliveryStatus } = req.params;
+        const orders = await Order.find({ delivery_status: deliveryStatus });
+        res.json(orders);
+    } catch (error) {
+        console.error('Error filtering orders by delivery status:', error);
+        res.status(500).json({ error: 'Failed to filter orders' });
+    }
+};
 
-module.exports = { getOrderHistory };
 
-module.exports = { getAllOrders, createOrder, getOrderById, updateOrder, deleteOrder, filterByPaymentStatus, getOrderHistory };
+
+module.exports = { getAllOrders, createOrder, getOrderById, updateOrder, deleteOrder, getOrderHistory, filterByDeliveryStatus };
