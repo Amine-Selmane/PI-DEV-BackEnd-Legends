@@ -2,10 +2,13 @@ const mongoose = require('mongoose');
 const Question = require('../model/question');
 
 const Quiz = new mongoose.Schema({
-  student: {
+  student: { // Ajoutez une référence à l'utilisateur ici
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true // Référence au modèle User pour l'étudiant
+    ref: 'User' // Assurez-vous que c'est la même valeur que vous utilisez pour le modèle User
+  },
+  studentGrade: {
+    type: String,
+    required: true
   },
   course: {
     type: mongoose.Schema.Types.ObjectId,

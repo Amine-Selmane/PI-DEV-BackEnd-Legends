@@ -226,13 +226,14 @@ async function add(req, res) {
                       if (!user) {
                           return res.status(404).json({ error: 'User not found' });
                       }
+                      const userFullName = `${user.firstName} ${user.lastName}`;
                   
                       // Trouvez les rapports pour cet utilisateur en utilisant son ID
                       const reports = await Report.find({ student: user._id })
                           .populate('teacher', 'firstName lastName')
                           .populate('course', 'name');
                   
-                      res.status(200).json({ reports });
+                          res.status(200).json({ userFullName, reports });
                   } catch (error) {
                       console.error('Error fetching student reports:', error);
                       res.status(500).json({ error: 'Error fetching student reports' });
@@ -242,25 +243,30 @@ async function add(req, res) {
               async function getReportsByTeacherUsername(req, res) {
                 try {
                     const username = req.params.username;
-                
+            
                     // Recherchez l'utilisateur par nom d'utilisateur
                     const user = await User.findOne({ username });
-                
+            
                     if (!user) {
                         return res.status(404).json({ error: 'User not found' });
                     }
-                
+            
+                    // Obtenez le nom complet de l'utilisateur connecté
+                    const userFullName = `${user.firstName} ${user.lastName}`;
+            
                     // Trouvez les rapports pour cet utilisateur en utilisant son ID
                     const reports = await Report.find({ teacher: user._id })
                         .populate('student', 'firstName lastName')
                         .populate('course', 'name');
-                
-                    res.status(200).json({ reports });
+            
+                    // Renvoyer les rapports ainsi que le nom complet de l'utilisateur connecté
+                    res.status(200).json({ userFullName, reports });
                 } catch (error) {
                     console.error('Error fetching student reports:', error);
                     res.status(500).json({ error: 'Error fetching student reports' });
                 }
             }
+            
   
               async function searchByCourse(req, res) {
                 try {
