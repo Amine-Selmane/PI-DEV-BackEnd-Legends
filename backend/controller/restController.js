@@ -5,8 +5,8 @@ const  bcrypt = require ('bcrypt');
 const jwt =  require ('jsonwebtoken');
 const ENV = require  ('../config.js');
 const otpGenerator = require  ('otp-generator');
-const sendAccountDetailsEmail = require('./mailer.js')
-const DisponibiliteModel = require('../model/disponibilite.Model.js');
+const sendAccountDetailsEmail = require('./mailer.js');
+const DisponibiliteModel = require('../model/disponibilite.Model');
 const Courses = require('../model/coursesModel.js');
 
 /** middlware for verify user */
