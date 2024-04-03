@@ -4,7 +4,7 @@ const { Reservation } = require("../model/reservation");
 const Event = require("../model/event"); // Import the Event model
 const nodemailer = require('nodemailer');
 const ENV = require('../config');
-const qr = require('qr-image');
+const qrcode = require('qrcode');
 
 
 require("dotenv").config();
@@ -100,13 +100,14 @@ const sendEmailWithQR = async (email, reservation) => {
 
     // Generate QR code data
     const qrData = generateQRData(eventName, placesBooked, location, date, beginTime, endTime);
-
+    
     // URL where the web page is hosted
-    const webpageUrl = 'https://example.com/qrcode';
-
+    const webpageUrl = 'https://doniaj.github.io/';
+   
+      
     // Link to the web page with the QR code data as a query parameter
     const qrCodeUrl = `${webpageUrl}?data=${encodeURIComponent(qrData)}`;
-
+    const qrCodeImage = await qrcode.toDataURL(qrCodeUrl);
     // Define email options
     const mailOptions = {
       from: ENV.EMAILD,
@@ -115,7 +116,7 @@ const sendEmailWithQR = async (email, reservation) => {
       text: 'Thank you for your reservation!',
       html: `
         <p>Thank you for your reservation! Scan the QR code below to view the details:</p>
-        <img src="${qrCodeUrl}" alt="QR Code" />
+        <img src="${qrCodeImage}" alt="QR Code" />
         <p>Alternatively, you can <a href="${qrCodeUrl}">click here</a> to view the details.</p>
       `
     };
