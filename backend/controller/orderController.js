@@ -14,7 +14,7 @@ const getAllOrders = async (req, res) => {
 // Controller to create a new order
 const createOrder = async (req, res) => {
     try {
-        const { customerId, items, subtotal, total, shipping, delivery_status, payment_status } = req.body;
+        const { customerId, items, subtotal, total, shipping, delivery_status, payment_status,orderedAt } = req.body;
         const newOrder = new Order({
             customerId,
             items,
@@ -22,7 +22,8 @@ const createOrder = async (req, res) => {
             total,
             shipping,
             delivery_status,
-            payment_status
+            payment_status,
+            orderedAt
         });
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
@@ -98,7 +99,29 @@ const filterByDeliveryStatus = async (req, res) => {
         res.status(500).json({ error: 'Failed to filter orders' });
     }
 };
+const filterByOrderDate = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.params;
+        const orders = await Order.find({
+            orderedAt: {
+                $gte: new Date(startDate), // Greater than or equal to startDate
+                $lte: new Date(endDate)    // Less than or equal to endDate
+            }
+        });
+        res.json(orders);
+    } catch (error) {
+        console.error('Error filtering orders by order date:', error);
+        res.status(500).json({ error: 'Failed to filter orders' });
+    }
+};
 
-
-
-module.exports = { getAllOrders, createOrder, getOrderById, updateOrder, deleteOrder, getOrderHistory, filterByDeliveryStatus };
+module.exports = { 
+    getAllOrders, 
+    createOrder, 
+    getOrderById, 
+    updateOrder, 
+    deleteOrder, 
+    getOrderHistory, 
+    filterByDeliveryStatus,
+    filterByOrderDate  // Add this line to export the new controller function
+};

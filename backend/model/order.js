@@ -17,7 +17,7 @@ const orderSchema = new mongoose.Schema({
     shipping: { type: Object, required: true },
     delivery_status: { type: String, default: "pending" },
     payment_status: { type: String, required: true },
-    
+    orderedAt: { type: Date, default: Date.now } // New field for order date
 });
 
 const Order = mongoose.model("Order", orderSchema);

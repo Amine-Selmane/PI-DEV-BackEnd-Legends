@@ -15,6 +15,7 @@ router.get('/getorderbyid/:id', orderController.getOrderById);
 
 // Update an order by ID
 router.put('/updateOrder/:id', orderController.updateOrder);
+router.get('/filterByOrderDate/:startDate/:endDate', orderController.filterByOrderDate);
 
 // Delete an order by ID
 router.delete('/deleteOrder/:id', orderController.deleteOrder);
