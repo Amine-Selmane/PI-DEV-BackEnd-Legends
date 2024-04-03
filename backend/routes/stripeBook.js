@@ -8,7 +8,7 @@ const twilio = require('twilio');
 require("dotenv").config();
 const router = express.Router();
 
-const stripe = Stripe(process.env.STRIPE_KEY);
+const stripe = Stripe(process.env.STRIPE_KEY_book);
 
 // Create Nodemailer transporter for sending emails
 const transporter = nodemailer.createTransport({
@@ -144,8 +144,8 @@ router.post("/create-checkout-session", async (req, res) => {
       line_items,
       mode: "payment",
       customer: customer.id,
-      success_url: `${process.env.CLIENT_URL}/checkout-success`,
-      cancel_url: `${process.env.CLIENT_URL}/cart`,
+      success_url: `${process.env.CLIENT_URL_book}/checkout-success`,
+      cancel_url: `${process.env.CLIENT_URL_book}/cart`,
     });
 
     console.log("Session:", session);
