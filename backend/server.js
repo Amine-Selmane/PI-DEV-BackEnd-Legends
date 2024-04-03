@@ -17,6 +17,8 @@ const courses = require("./routes/coursesRoutes")
 const schedule = require("./routes/scheduleRoutes")
 const morgan = require('morgan');
 const router = require('./routes/restRoutes.js')
+const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
+
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
 
@@ -104,6 +106,12 @@ app.disable('x-powered-by');
 
 /** api routes for user */
 app.use('/api',router)
+app.use('/courses',courses)
+
+
+/** disponibilite routes for disponibilite */
+app.use('/disponibilte', disponibiliteRoutes);
+
 
 app.use('/', EventRoutes); 
 app.use('/', ReservationRoutes); 
