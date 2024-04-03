@@ -13,9 +13,22 @@ const coursesSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    duration: {
+        type: Number,
+        default : 30
+    },
     teacher_name: {
         type: String,
         required: true
+    },
+    nbrQuiz:{
+        type: Number 
+    },
+    halfYearlyPrice:{
+        type:Number,
+    },
+    yearlyPrice:{
+        type:Number,
     }
 })
 
