@@ -12,6 +12,32 @@ let transporter = nodemailer.createTransport({
 });
 
 
+async function PayementEmail(req, res, next) {
+  try {
+    const { email , firstName , lastName, datePay } = req.body;
+
+    const emailBody = `Dear ${firstName} ${lastName},
+
+    We are delighted to inform you that your recent payment has been successfully processed. This email serves as confirmation of your payment for your subscription.
+    Date and Time of Payment: ${datePay}
+
+    Best,
+    ElKindy`;
+
+    const message = {
+      from: 'your-email@gmail.com',
+      to: email,
+      subject: "Account Details",
+      text: emailBody
+    };
+
+    await transporter.sendMail(message);
+
+    next();
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+}
 
 async function sendAccountDetailsEmail(req, res, next) {
   try {
@@ -45,31 +71,35 @@ async function sendAccountDetailsEmail(req, res, next) {
     res.status(400).send({ error: err.message });
   }
 }
-const registerMail = async (req, res) => {
-  const { username, userEmail } = req.body;
 
-  const emailBody = `Dear ${username},
+async function registerMail(req, res, next) {
+  try {
+    const { email,  firstName , lastName} = req.body;
 
-  Congratulations on successfully signing up with us!
+    const emailBody = `Dear ${firstName} ${lastName},
 
-  You now have access to our services. If you need any assistance, feel free to reach out.
-  
-  Best,
+    We are delighted to inform you that your pre-registration with us has been successful. Welcome to our community! To finalize your enrollment, we kindly request you to proceed with the payment.
+    Once the payment is successfully processed, your registration will be complete. You will gain access to all the benefits and resources we have to offer.
+    We look forward to having you as a valued member of our community. Thank you for choosing to be a part of our organization.
+
+  Best regards,
   ElKindy`;
 
-  const message = {
-    from: ENV.EMAIL,
-    to: userEmail,
-    subject: "Welcome to ElKindy",
-    text: emailBody
-  };
+    const message = {
+      from: ENV.EMAIL,
+      to: email,
+      subject: "Registration Confirmation ",
+      text: emailBody
+    };
 
-  transporter.sendMail(message)
-    .then(() => {
-      return res.status(200).send({ msg: "You should receive an email from us." });
-    })
-    .catch(error => res.status(500).send({ error }));
-};
+    await transporter.sendMail(message);
+
+    next();
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+}
+
 
 
 
@@ -106,5 +136,6 @@ const sendOTPEmail = async (req, res) => {
 module.exports = {
   registerMail,
   sendOTPEmail,
-  sendAccountDetailsEmail
+  sendAccountDetailsEmail,
+  PayementEmail
 };

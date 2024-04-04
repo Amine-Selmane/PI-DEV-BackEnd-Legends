@@ -305,58 +305,68 @@ async function registerAdmin(req, res) {
 
   async function registerStudent(req, res) {
     try {
-      const { username, password, firstName, lastName, profile, email, mobile, address, dateNaiss, sexe, courses, role, availability } = req.body;
-  
-      // Vérifie si le nom d'utilisateur ou l'e-mail existe déjà
-      const existingUsername = await UserModel.findOne({ username });
-      const existingEmail = await UserModel.findOne({ email });
-  
-      if (existingUsername) {
-        throw new Error("Veuillez utiliser un nom d'utilisateur unique");
-      }
-      if (existingEmail) {
-        throw new Error("Veuillez utiliser un e-mail unique");
-      }
-  
-      // Hachez le mot de passe
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      // Créez un nouvel utilisateur avec les cours sélectionnés
-      const user = new UserModel({
-        username,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        profile: profile || '',
-        email,
-        dateNaiss,
-        address,
-        mobile,
-        sexe,
-        role,
-        courses: courses // Assignez la liste de cours choisis à l'utilisateur
-      });
-  
-      // Enregistrez l'utilisateur
-  await user.save();
-  
-      // Enregistrez les disponibilités de l'utilisateur
-      if (availability) {
-        for (const { jour, heureDebut, heureFin } of availability) {
-          await DisponibiliteModel.create({
-            jour,
-            heureDebut,
-            heureFin,
-            utilisateur: user._id
-          });
+        const { username, password, firstName, lastName, profile, email, mobile, address, dateNaiss, sexe, courses, role, availability } = req.body;
+
+        // Vérifie si le nom d'utilisateur ou l'e-mail existe déjà
+        const existingUsername = await UserModel.findOne({ username });
+        const existingEmail = await UserModel.findOne({ email });
+
+        if (existingUsername) {
+            throw new Error("Veuillez utiliser un nom d'utilisateur unique");
         }
-      }
-  
-      res.status(201).send({ msg: "Utilisateur enregistré avec succès" });
+        if (existingEmail) {
+            throw new Error("Veuillez utiliser un e-mail unique");
+        }
+
+        // Hachez le mot de passe
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Initialiser isPayer en fonction du rôle
+        let isPayer;
+        if (role === 'student') {
+            isPayer = false;
+        } else if (role === 'teacher') {
+            isPayer = null;
+        }
+
+        // Créez un nouvel utilisateur avec les cours sélectionnés
+        const user = new UserModel({
+            username,
+            password: hashedPassword,
+            firstName,
+            lastName,
+            profile: profile || '',
+            email,
+            dateNaiss,
+            address,
+            mobile,
+            sexe,
+            role,
+            isPayer,
+            courses: courses // Assignez la liste de cours choisis à l'utilisateur
+        });
+
+        // Enregistrez l'utilisateur
+        await user.save();
+
+        // Enregistrez les disponibilités de l'utilisateur
+        if (availability) {
+            for (const { jour, heureDebut, heureFin } of availability) {
+                await DisponibiliteModel.create({
+                    jour,
+                    heureDebut,
+                    heureFin,
+                    utilisateur: user._id
+                });
+            }
+        }
+
+        res.status(201).send({ msg: "Utilisateur enregistré avec succès" });
     } catch (error) {
-      res.status(500).send({ error: error.message });
+        res.status(500).send({ error: error.message });
     }
-  }
+}
+
   
 
 //   async function registerStudent(req, res) {
