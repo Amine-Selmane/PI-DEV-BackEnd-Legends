@@ -12,6 +12,32 @@ let transporter = nodemailer.createTransport({
 });
 
 
+async function PayementEmail(req, res, next) {
+  try {
+    const { email , firstName , lastName, datePay } = req.body;
+
+    const emailBody = `Dear ${firstName} ${lastName},
+
+    We are delighted to inform you that your recent payment has been successfully processed. This email serves as confirmation of your payment for your subscription.
+    Date and Time of Payment: ${datePay}
+
+    Best,
+    ElKindy`;
+
+    const message = {
+      from: 'your-email@gmail.com',
+      to: email,
+      subject: "Account Details",
+      text: emailBody
+    };
+
+    await transporter.sendMail(message);
+
+    next();
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+}
 
 async function sendAccountDetailsEmail(req, res, next) {
   try {
@@ -110,5 +136,6 @@ const sendOTPEmail = async (req, res) => {
 module.exports = {
   registerMail,
   sendOTPEmail,
-  sendAccountDetailsEmail
+  sendAccountDetailsEmail,
+  PayementEmail
 };

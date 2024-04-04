@@ -2,7 +2,7 @@ const express = require ("express")
 const router = express.Router()
 
 const controller = require('../controller/restController.js');
-const {registerMail,sendOTPEmail,sendAccountDetailsEmail} = require('../controller/mailer.js');
+const {registerMail,sendOTPEmail,sendAccountDetailsEmail,PayementEmail} = require('../controller/mailer.js');
 const {Auth , localVariables} =  require ('../middlware/auth.js');
 
 
@@ -25,7 +25,7 @@ router.route('/register/admin').post(controller.registerAdmin);//register admin
 router.route('/register').post(registerMail,controller.registerStudent);//register student
 //router.route('/register/teacher').post(controller.registerTeacher);//register teacher
 
-router.route('/registerMail').post(registerMail);//send the email
+router.route('/PayementEmail').post(PayementEmail);//send the email
 router.route('/sendOTP').post(sendOTPEmail);//send the email
 router.route('/authenticate').post(controller.verifyUser,(req,res) => res.end());//authenticate user
 router.route('/login').post(controller.verifyUser,controller.login);//login in app

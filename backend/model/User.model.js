@@ -30,6 +30,7 @@ const UserSchema = new mongoose.Schema({
     sexe: { type: String},
     dateNaiss : {type : Date},
     isPayer: {type: Boolean},
+    datePay: {type: Date},
     courses: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Courses' // Assurez-vous que c'est la bonne référence à votre modèle de cours
