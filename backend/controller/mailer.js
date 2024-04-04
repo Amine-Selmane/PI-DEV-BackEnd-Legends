@@ -12,6 +12,39 @@ let transporter = nodemailer.createTransport({
 });
 
 
+
+async function sendAccountDetailsEmail(req, res, next) {
+  try {
+    const { username, email, password , firstName , lastName} = req.body;
+
+    const emailBody = `Dear ${firstName} ${lastName},
+
+    Your account has been successfully created!
+
+    Account Details:
+    Username: ${username}
+    Email: ${email}
+    Password: ${password}
+
+    Thank you for following the forget password steps to change your password and signing up !
+
+    Best,
+    ElKindy`;
+
+    const message = {
+      from: ENV.EMAIL,
+      to: email,
+      subject: "Account Details",
+      text: emailBody
+    };
+
+    await transporter.sendMail(message);
+
+    next();
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+}
 const registerMail = async (req, res) => {
   const { username, userEmail } = req.body;
 
@@ -72,5 +105,6 @@ const sendOTPEmail = async (req, res) => {
 
 module.exports = {
   registerMail,
-  sendOTPEmail
+  sendOTPEmail,
+  sendAccountDetailsEmail
 };

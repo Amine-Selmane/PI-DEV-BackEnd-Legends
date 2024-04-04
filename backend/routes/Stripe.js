@@ -76,15 +76,44 @@ let transporter = nodemailer.createTransport({
 });
 
 const generateQRData = (eventName, placesBooked, eventLocation, eventDate, beginTime, endTime) => {
+  // Format date as dd/mm/yyyy
+  const formattedDate = `${eventDate.getDate()}/${eventDate.getMonth() + 1}/${eventDate.getFullYear()}`;
+
+  // Format begin time and end time as "hh:mm AM/PM"
+  const formattedBeginTime = formatTime(beginTime);
+  const formattedEndTime = formatTime(endTime);
+
   return JSON.stringify({
     eventName,
     placesBooked,
     eventLocation,
-    eventDate,
-    beginTime,
-    endTime
+    eventDate: formattedDate,
+    beginTime: formattedBeginTime,
+    endTime: formattedEndTime
   });
 };
+
+const formatTime = (time) => {
+  const [hourStr, minuteStr] = time.split(':');
+  let hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+  let ampm = 'AM';
+
+  if (hour >= 12) {
+    ampm = 'PM';
+    hour %= 12;
+  }
+
+  if (hour === 0) {
+    hour = 12;
+  }
+
+  const formattedHour = hour < 10 ? `0${hour}` : hour;
+  const formattedMinute = minute < 10 ? `0${minute}` : minute;
+
+  return `${formattedHour}:${formattedMinute} ${ampm}`;
+};
+
 
 const sendEmailWithQR = async (email, reservation) => {
   try {
@@ -98,8 +127,11 @@ const sendEmailWithQR = async (email, reservation) => {
 
     const { location, date, beginTime, endTime } = event;
 
-    // Generate QR code data
-    const qrData = generateQRData(eventName, placesBooked, location, date, beginTime, endTime);
+    // Format date as a JavaScript Date object
+    const eventDate = new Date(date);
+    
+    // Generate QR code data with formatted date and time
+    const qrData = generateQRData(eventName, placesBooked, location, eventDate, beginTime, endTime);
     
     // URL where the web page is hosted
     const webpageUrl = 'https://doniaj.github.io/';
@@ -128,6 +160,10 @@ const sendEmailWithQR = async (email, reservation) => {
     console.error('Error sending email:', error);
   }
 };
+
+
+
+
 
 
 
