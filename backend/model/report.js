@@ -19,19 +19,21 @@ const Report=new Schema({
       mark: {
         type: Number,
         required: true,
-        validate: {
-          validator: function(value) {
-              return /^\d+$/.test(value);
-          },
-          message: props => `${props.value} is not a valid mark.`
-      }
-    },
-    markquiz: {
-        type: Number,
-        required: true
-    },
-    average: {
-        type: Number
+        min: 0,
+        max: 20
+      //   validate: {
+      //     validator: function(value) {
+      //         return /^\d+$/.test(value);
+      //     },
+      //     message: props => `${props.value} is not a valid mark.`
+      // }
+    // },
+    // markquiz: {
+    //     type: Number,
+    //     required: true
+    // },
+    // average: {
+    //     type: Number
     }
 });
 
