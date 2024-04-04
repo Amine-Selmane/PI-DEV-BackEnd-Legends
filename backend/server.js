@@ -1,7 +1,10 @@
+
+// Start the server
+
 const express = require ("express")
-const mongoose = require('mongoose');
+const app = express(); //
+const connectDB = require("./config/db.js");
 const colors = require('colors')
-const connectDB = require("./config/db")
 const reportRouter = require("./routes/reports");
 const quizRouter = require("./routes/quiz");
 const questionRouter = require("./routes/questions");
@@ -21,13 +24,25 @@ const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
 
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
-const stripe = require("./routes/Stripe");
+
+
+// Initialize OpenAI API client
+
+// Chat endpoint
+
+// Mount routers for books, orders, and ratings
+const bookRouter = require("./routes/books");
+const orderRouter = require("./routes/orders");
+const ratingRouter = require("./routes/ratings");
+const stripe = require("./routes/stripeBook");
+
+
 
 // const Event = require('./model/event');
 
 
-connectDB()
-const app = express()
+connectDB();
+
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -103,6 +118,11 @@ app.disable('x-powered-by');
 
 
 
+
+app.use('/books', bookRouter);
+app.use('/orders', orderRouter);
+app.use('/ratings', ratingRouter);
+app.use('/api/stripe', stripe); 
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 
 /** api routes for user */
@@ -124,7 +144,7 @@ const { upload, uploadMultiple } = require('./middleware/multer')
 
 const { getStorage, ref ,uploadBytesResumable } = require('firebase/storage')
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword } = require("firebase/auth");
-const { auth } = require('./config/firebase.config')
+const { auth } = require('./config/firebase.config');
 
 
 
