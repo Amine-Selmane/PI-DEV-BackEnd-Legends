@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const Reservation = require('../model/reservation'); // Update the model import
+const {Reservation} = require('../model/reservation'); // Update the model import
 
 
 const reservationController = {

@@ -21,7 +21,7 @@ const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
 
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
-
+const stripe = require("./routes/Stripe");
 
 // const Event = require('./model/event');
 
@@ -102,6 +102,7 @@ app.use(morgan('tiny'));
 app.disable('x-powered-by');
 
 
+
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 
 /** api routes for user */
@@ -115,6 +116,7 @@ app.use('/disponibilte', disponibiliteRoutes);
 
 app.use('/', EventRoutes); 
 app.use('/', ReservationRoutes); 
+app.use("/", stripe);
 
 require('dotenv').config()
 

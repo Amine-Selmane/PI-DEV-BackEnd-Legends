@@ -12,6 +12,11 @@ const eventSchema = new mongoose.Schema({
   imageUrl: String,
 });
 
+// Define a method to find an event by name
+eventSchema.statics.findByName = function(name) {
+  return this.findOne({ name });
+};
+
 const Event = mongoose.model('Event', eventSchema);
 
 module.exports = Event;
