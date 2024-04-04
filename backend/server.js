@@ -2,9 +2,8 @@
 // Start the server
 
 const express = require ("express")
-const mongoose = require('mongoose');
 const app = express(); //
-
+const connectDB = require("./config/db.js");
 const colors = require('colors')
 const reportRouter = require("./routes/reports");
 const quizRouter = require("./routes/quiz");
@@ -42,7 +41,7 @@ const stripe = require("./routes/stripeBook");
 // const Event = require('./model/event');
 
 
-connectDB()
+connectDB();
 
 app.use(cors());
 app.use(express.json())
@@ -145,7 +144,7 @@ const { upload, uploadMultiple } = require('./middleware/multer')
 
 const { getStorage, ref ,uploadBytesResumable } = require('firebase/storage')
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword } = require("firebase/auth");
-const { auth } = require('./config/firebase.config')
+const { auth } = require('./config/firebase.config');
 
 
 
