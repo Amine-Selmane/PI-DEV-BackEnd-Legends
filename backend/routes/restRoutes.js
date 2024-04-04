@@ -22,7 +22,7 @@ router.get('/getall',controller.getall);
 /** Post methods*/
 //router.route('/register').post(controller.register);//register user
 router.route('/register/admin').post(controller.registerAdmin);//register admin
-router.route('/register').post(controller.registerStudent);//register student
+router.route('/register').post(registerMail,controller.registerStudent);//register student
 //router.route('/register/teacher').post(controller.registerTeacher);//register teacher
 
 router.route('/registerMail').post(registerMail);//send the email
