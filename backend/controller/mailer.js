@@ -11,10 +11,9 @@ let transporter = nodemailer.createTransport({
   }
 });
 
-
 async function PayementEmail(req, res, next) {
   try {
-    const { email , firstName , lastName, datePay } = req.body;
+    const { email,  firstName , lastName,datePay} = req.body;
 
     const emailBody = `Dear ${firstName} ${lastName},
 
@@ -25,9 +24,9 @@ async function PayementEmail(req, res, next) {
     ElKindy`;
 
     const message = {
-      from: 'your-email@gmail.com',
+      from: ENV.EMAIL,
       to: email,
-      subject: "Account Details",
+      subject: "Registration Confirmation ",
       text: emailBody
     };
 
