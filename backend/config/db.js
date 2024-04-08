@@ -1,30 +1,17 @@
 const mongoose = require('mongoose');
+const colors = require('colors');
 
 const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGO_URI_SRV, {
             useNewUrlParser: true,
-            useUnifiedTopology: true // Ajoutez cette option si nécessaire
+            useUnifiedTopology: true
         });
         console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline);
     } catch (error) {
-        console.error(error);
+        console.error(`Error: ${error.message}`.red.bold);
         process.exit(1);
     }
-}
+};
 
 module.exports = connectDB;
-
-// const mongoose = require('mongoose')
-
-// const connectDB = async() =>{
-//     try {
-//         const conn = await mongoose.connect(process.env.MONGO_URI)
-//         console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline)
-//     } catch (error){
-//         console.error(error);
-//         process.exit(1)
-//     }
-// }
-
-// module.exports = connectDB

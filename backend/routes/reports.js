@@ -13,8 +13,12 @@ router.put('/update/:id', reportController.update);
 // Route pour supprimer un bulletin
 router.delete('/deletereport/:id',reportController.deletereport);
 // Route pour récupérer les rapports d'un étudiant spécifique
-router.get('/reports/student/:studentId', reportController.getReportsByStudentId);
-router.get('/search',reportController.searchByCourse);
+//router.get('/student/:studentId', reportController.getReportsByStudentId);
+router.get('/student/:username', reportController.getReportsByStudentUsername);
+router.get('/teacher/:username', reportController.getReportsByTeacherUsername);
+router.get('/search/:courseName', reportController.searchByCourse);
+router.get('/statistics', reportController.getStudentStatistics);
+//router.get('/search', reportController.searchByCourse);
 // router.get('/',method name here)
 // router.post('/',method name here)
 // router.put('/:id',method name here)

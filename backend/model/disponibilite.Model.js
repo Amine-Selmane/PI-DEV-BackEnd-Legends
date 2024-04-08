@@ -8,6 +8,5 @@ const DisponibiliteSchema = new Schema({
     utilisateur: { type: String, required: true }
 });
 
-const DisponibiliteModel = mongoose.model('Disponibilite', DisponibiliteSchema);
 
-module.exports = DisponibiliteModel;
+module.exports = mongoose.models.Disponibilite || mongoose.model('Disponibilite', DisponibiliteSchema)
