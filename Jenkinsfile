@@ -41,8 +41,10 @@ pipeline {
             steps {
                 script {
                     sh('docker-compose build --verbose')
+                    sh('docker-compose logs db')
                 }
             }
         }
+
     }
 }
