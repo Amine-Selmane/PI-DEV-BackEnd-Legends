@@ -7,13 +7,13 @@ pipeline{
 
   stages {
 
-//  stage('Supprimer les dépendances existantes') {
-//       steps {
-//         script {
-//           sh 'rm -rf node_modules'
-//         }
-//       }
-//     }
+ stage('Supprimer les dépendances existantes') {
+      steps {
+        script {
+          sh 'rm -rf node_modules'
+        }
+      }
+    }
  
   stage('Install dependencies') {
       steps{
