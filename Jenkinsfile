@@ -28,5 +28,13 @@ pipeline {
                 }
             }
         }
+
+        stage('Build application') {
+            steps {
+                script {
+                    sh('npm run build')
+                }
+            }
+        }
     }
 }
