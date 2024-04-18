@@ -41,6 +41,7 @@ pipeline {
             steps {
                 script {
                     sh('docker-compose build --verbose')
+                    sh('docker-compose up -d') // Pour démarrer les services en arrière-plan
                     sh('docker-compose logs db')
                 }
             }
