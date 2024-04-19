@@ -1,7 +1,10 @@
+
+// Start the server
+
 const express = require ("express")
-const mongoose = require('mongoose');
+const app = express(); //
+const connectDB = require("./config/db.js");
 const colors = require('colors')
-const connectDB = require("./config/db")
 const reportRouter = require("./routes/reports");
 const quizRouter = require("./routes/quiz");
 const questionRouter = require("./routes/questions");
@@ -18,16 +21,24 @@ const schedule = require("./routes/scheduleRoutes")
 const morgan = require('morgan');
 const router = require('./routes/restRoutes.js')
 const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
-
+const stripe = require('./routes/Stripe.js');
+const Payement = require('./routes/subscrition.js');
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
-const stripe = require("./routes/Stripe");
+
+
+// Initialize OpenAI API client
+
+// Chat endpoint
+
+
+
 
 // const Event = require('./model/event');
 
 
-connectDB()
-const app = express()
+connectDB();
+
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -42,6 +53,7 @@ app.get('/teachers', async (req, res) => {
     }
 });
 
+app.use(bodyParser.raw({ type: 'application/json' }));
 // Route pour récupérer tous les étudiants
 app.get('/students', async (req, res) => {
     try {
@@ -103,6 +115,8 @@ app.disable('x-powered-by');
 
 
 
+
+
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 
 /** api routes for user */
@@ -113,7 +127,7 @@ app.use('/courses',courses)
 /** disponibilite routes for disponibilite */
 app.use('/disponibilte', disponibiliteRoutes);
 
-
+app.use('/inscri',Payement);
 app.use('/', EventRoutes); 
 app.use('/', ReservationRoutes); 
 app.use("/", stripe);
@@ -124,7 +138,7 @@ const { upload, uploadMultiple } = require('./middleware/multer')
 
 const { getStorage, ref ,uploadBytesResumable } = require('firebase/storage')
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword } = require("firebase/auth");
-const { auth } = require('./config/firebase.config')
+const { auth } = require('./config/firebase.config');
 
 
 
