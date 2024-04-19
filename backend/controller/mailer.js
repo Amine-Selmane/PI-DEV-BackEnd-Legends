@@ -11,14 +11,25 @@ let transporter = nodemailer.createTransport({
   }
 });
 
-async function PayementEmail(req, res, next) {
+function formatDate(date) {
+  const newDate = new Date(date);
+  const day = String(newDate.getDate()).padStart(2, '0');
+  const month = String(newDate.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+  const year = newDate.getFullYear();
+  const hours = String(newDate.getHours()).padStart(2, '0');
+  const minutes = String(newDate.getMinutes()).padStart(2, '0');
+
+  return `${day}/${month}/${year}  ${hours}:${minutes}`;
+}
+async function PayementEmail(email, datePay, annual, montant) {
   try {
-    const { email,  firstName , lastName,datePay} = req.body;
+   //const { email , datePay , annual , montant} = req.body;
+   const formattedDate = formatDate(datePay);
 
-    const emailBody = `Dear ${firstName} ${lastName},
+    const emailBody = `Dear client,
 
-    We are delighted to inform you that your recent payment has been successfully processed. This email serves as confirmation of your payment for your subscription.
-    Date and Time of Payment: ${datePay}
+    We are delighted to inform you that your recent payment has been successfully processed. This email serves as confirmation of your payment for your subscription type${annual} amount paid ${montant}.
+    Date and Time of Payment: ${formattedDate}
 
     Best,
     ElKindy`;
@@ -26,15 +37,14 @@ async function PayementEmail(req, res, next) {
     const message = {
       from: ENV.EMAIL,
       to: email,
-      subject: "Registration Confirmation ",
+      subject: "Account Details",
       text: emailBody
     };
 
     await transporter.sendMail(message);
-
-    next();
+    console.log("Payment email sent successfully to:", email);
   } catch (err) {
-    res.status(400).send({ error: err.message });
+    throw err;
   }
 }
 
