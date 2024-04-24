@@ -6,19 +6,41 @@ const User = require('../model/user');
 
 const addScheduleSession = asyncHandler(async (req, res) => {
   try {
-    const { teacher, students, startDateTime, endDateTime } = req.body;
-    const scheduleSession = new ScheduleSession({
-      teacher,
-      students,
-      startDateTime,
-      endDateTime,
-    });
+    const { teacher, students, startDateTime, endDateTime, day } = req.body;
 
-    const addedScheduleSession = await scheduleSession.save();
-    res.status(201).json({
-      message: 'New schedule added',
-      addedScheduleSession,
-    });
+    const existingSession = await ScheduleSession.findOne({ teacher, day });
+    if (existingSession) {
+
+       // Convert students array to a set to remove duplicates
+       const uniqueStudents = new Set(existingSession.students);
+      
+       // Add new students to the set
+       students.forEach(student => uniqueStudents.add(student));
+ 
+       // Convert set back to array
+       existingSession.students = [...uniqueStudents];
+       
+       await existingSession.save();
+ 
+       res.status(200).json({
+         message: 'Schedule updated with new students',
+         existingSession,
+       });
+    } else {
+      const scheduleSession = new ScheduleSession({
+        teacher,
+        students,
+        startDateTime,
+        endDateTime,
+        day
+      });
+
+      const addedScheduleSession = await scheduleSession.save();
+      res.status(201).json({
+        message: 'New schedule added',
+        addedScheduleSession,
+      });
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -61,8 +83,8 @@ const getAvailableStudentsAndTeachers = asyncHandler(async (req, res) => {
 
     const dispo = await dispoData.find({
       jour,
-      heureDebut: { $gte: heureDebut },
-      heureFin: { $lt: heureFin },
+      heureDebut,
+      heureFin,
     });
     console.log('🚀 ~ getAvailableStudentsAndTeachers ~ dispo:', dispo);
 
@@ -95,11 +117,22 @@ const getAvailableStudentsAndTeachers = asyncHandler(async (req, res) => {
     }
 
     console.log('result', teachers, students);
-    res.status(200).json({
-      message: 'Available students and teachers fetched successfully',
-      teachers,
-      students,
-    });
+    if (teachers.length === 0 && students.length === 0) {
+      res.status(400).json({
+        message: 'Unvailable students and teachers !!',
+        teachers,
+        students,
+      });
+    } else {
+      res.status(200).json({
+        message: 'Available students and teachers fetched successfully',
+        teachers,
+        students,
+      });
+    }
+
+
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

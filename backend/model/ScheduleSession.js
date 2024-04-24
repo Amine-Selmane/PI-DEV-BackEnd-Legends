@@ -12,18 +12,17 @@ const scheduleSchema = new mongoose.Schema({
     },
   ],
   startDateTime: {
-    type: Date,
+    type: String,
+    required: true
   },
   endDateTime: {
-    type: Date,
+    type: String,
+    required: true
   },
-  // classroom: {
-  //     type: Number,
-  //     required: false
-  // },
-  // class : {
-  //     type: String
-  // }
+  day: {
+    type: String,
+    required: true
+  }
 });
 
 module.exports = mongoose.model('ScheduleSession', scheduleSchema);
