@@ -2,13 +2,14 @@
 // Start the server
 
 const express = require ("express")
-const app = express(); //
+const app = express(); 
 const connectDB = require("./config/db.js");
 const colors = require('colors')
 const reportRouter = require("./routes/reports");
 const quizRouter = require("./routes/quiz");
 const questionRouter = require("./routes/questions");
 const User=require("./model/user");
+const Protect = require("./middlware/protectRoute.js")
 const Course=require("./model/course");
 const QuestionModel = require("./model/question");
 const Quiz=require("./model/quiz.js");
@@ -23,9 +24,12 @@ const router = require('./routes/restRoutes.js')
 const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
 const stripe = require('./routes/Stripe.js');
 const Payement = require('./routes/subscrition.js');
+const msg = require("./routes/message.js")
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
+const  cookieParser = require ('cookie-parser') ;
 
+//const { socket, io, server, getReceiverSocketId } = require('./socket/socket.js'); // Importez socket.js
 
 // Initialize OpenAI API client
 
@@ -38,7 +42,6 @@ const ReservationRoutes = require('./routes/ReservationRoutes');
 
 
 connectDB();
-
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -105,7 +108,6 @@ app.use('/schedule', schedule)
 app.use("/reports", reportRouter);
 app.use("/quiz",quizRouter);
 app.use("/questions",questionRouter);
-
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -118,9 +120,11 @@ app.disable('x-powered-by');
 
 
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
-
+app.use(cookieParser());
 /** api routes for user */
 app.use('/api',router)
+app.use('/msg',msg)
+
 app.use('/courses',courses)
 
 

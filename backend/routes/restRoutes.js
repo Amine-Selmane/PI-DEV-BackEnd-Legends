@@ -4,6 +4,8 @@ const router = express.Router()
 const controller = require('../controller/restController.js');
 const {registerMail,sendOTPEmail,sendAccountDetailsEmail,PayementEmail} = require('../controller/mailer.js');
 const {Auth , localVariables} =  require ('../middlware/auth.js');
+const ProtectRoute =  require ('../middlware/protectRoute.js');
+
 
 
 // router.get('/',method name here)
@@ -12,6 +14,8 @@ router.route('/:userId/courses').get(controller.CoursesByUser);
 router.route('/user/:username').get(controller.getUser);//user with username
 router.route('/userToken').get(Auth,controller.getUserToken);//
 router.route('/user/ById/:userId').get(controller.getById);
+router.route('/sidebar').get(ProtectRoute.protectRoute,controller.getUsersForSidebar);
+
 
 router.route('/userbyEmail/:email').get(controller.getUserByEmail);//user with email
 router.route('/generateOTP').get(controller.verifyUserByEmail, localVariables, controller.generateOTP);

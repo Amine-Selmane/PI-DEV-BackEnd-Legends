@@ -8,7 +8,6 @@ const otpGenerator = require  ('otp-generator');
 const sendAccountDetailsEmail = require('./mailer.js');
 const DisponibiliteModel = require('../model/disponibilite.Model');
 const Courses = require('../model/coursesModel.js');
-
 /** middlware for verify user */
  async function verifyUser(req, res, next) {
     try {
@@ -455,47 +454,89 @@ async function registerAdmin(req, res) {
   // }
   
 /** POST: http://localhost:8080/api/login */
-
- async function login(req,res){
-   
+async function login(req, res) {
   const { username, password } = req.body;
 
   try {
-      
-      UserModel.findOne({ username })
-          .then(user => {
-              bcrypt.compare(password, user.password)
-                  .then(passwordCheck => {
+    const user = await UserModel.findOne({ username });
 
-                      if(!passwordCheck) return res.status(400).send({ error: "Don't have Password"});
+    if (!user) {
+      return res.status(404).send({ error: "Username not found" });
+    }
 
-                      // create jwt token
-                      const token = jwt.sign({
-                                      userId: user._id,
-                                      username : user.username,
-                                      role: user.role
-                                  }, ENV.JWT_SECRET , { expiresIn : "24h"});
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
-                      return res.status(200).send({
-                          msg: "Login Successful...!",
-                          username: user.username,
-                          role: user.role,
-                          token
-                      });                                    
+    if (!passwordMatch) {
+      return res.status(400).send({ error: "Password does not match" });
+    }
 
-                  })
-                  .catch(error =>{
-                      return res.status(400).send({ error: "Password does not Match"})
-                  })
-          })
-          .catch( error => {
-              return res.status(404).send({ error : "Username not Found"});
-          })
+    // Generate and sign JWT token
+    const token = jwt.sign({ userId: user._id }, ENV.JWT_SECRET, { expiresIn: "24h" });
 
+    // Generate and set secure cookie within login
+    await generateTokenAndSetCookie(token, res);
+
+    return res.status(200).send({
+      msg: "Login successful!",
+      username: user.username,
+      role: user.role,
+      token,
+    });
   } catch (error) {
-      return res.status(500).send({ error});
+    console.error(error); // Log the error for debugging
+    return res.status(500).send({ error: "Internal server error" });
   }
 }
+
+async function generateTokenAndSetCookie(token, res) {
+  res.cookie("jwt", token, {
+    maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days in milliseconds
+    httpOnly: true, // Prevent client-side JavaScript access
+    sameSite: "strict", // Mitigate CSRF attacks
+    secure: process.env.NODE_ENV !== "development", // Set secure flag only in production
+  });
+}
+
+//  async function login(req,res){
+   
+//   const { username, password } = req.body;
+
+//   try {
+      
+//       UserModel.findOne({ username })
+//           .then(user => {
+//               bcrypt.compare(password, user.password)
+//                   .then(passwordCheck => {
+
+//                       if(!passwordCheck) return res.status(400).send({ error: "Don't have Password"});
+
+//                       // create jwt token
+//                       const token = jwt.sign({
+//                                       userId: user._id,
+//                                       username : user.username,
+//                                       role: user.role
+//                                   }, ENV.JWT_SECRET , { expiresIn : "24h"});
+
+//                       return res.status(200).send({
+//                           msg: "Login Successful...!",
+//                           username: user.username,
+//                           role: user.role,
+//                           token
+//                       });                                    
+
+//                   })
+//                   .catch(error =>{
+//                       return res.status(400).send({ error: "Password does not Match"})
+//                   })
+//           })
+//           .catch( error => {
+//               return res.status(404).send({ error : "Username not Found"});
+//           })
+
+//   } catch (error) {
+//       return res.status(500).send({ error});
+//   }
+// }
 
 
 
@@ -645,6 +686,18 @@ async function CoursesByUser(req, res) {
   }
 }
 
+async function getUsersForSidebar (req, res) {
+	try {
+		const loggedInUserId = req.user._id;
+
+		const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+
+		res.status(200).json(filteredUsers);
+	} catch (error) {
+		console.error("Error in getUsersForSidebar: ", error.message);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
 
 
 module.exports = {
@@ -669,6 +722,7 @@ module.exports = {
     getUserByEmail,
     verifyUserByEmail,
     getUserToken,
-    getById
+    getById,
+    getUsersForSidebar
 
 }
