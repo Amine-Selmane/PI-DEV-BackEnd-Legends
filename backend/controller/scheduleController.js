@@ -11,14 +11,16 @@ const addScheduleSession = asyncHandler(async (req, res) => {
     const existingSession = await ScheduleSession.findOne({ teacher, day });
     if (existingSession) {
 
-       // Convert students array to a set to remove duplicates
-       const uniqueStudents = new Set(existingSession.students);
+      //  // Convert students array to a set to remove duplicates
+      //  const uniqueStudents = new Set(existingSession.students);
       
-       // Add new students to the set
-       students.forEach(student => uniqueStudents.add(student));
+      //  // Add new students to the set
+      //  students.forEach(student => uniqueStudents.add(student));
  
        // Convert set back to array
-       existingSession.students = [...uniqueStudents];
+
+       existingSession.students = [];
+       existingSession.students = students;
        
        await existingSession.save();
  
@@ -48,22 +50,12 @@ const addScheduleSession = asyncHandler(async (req, res) => {
 
 const getScheduleSessions = asyncHandler(async (req, res) => {
   try {
-    // filtering
-    const { teacher, student, startDateTime, endDateTime } = req.query;
-
-    // filter by date range if startDateTime and endDateTime are provided
-
+    const { teacher, student } = req.query;
     const filter = {};
-
-    if (startDateTime && endDateTime) {
-      filter.startDateTime = { $gte: startDateTime, $lt: endDateTime };
-    }
 
     if (teacher) {
       filter.teacher = teacher;
-    }
-
-    if (student) {
+    }else if (student) {
       filter.students = student;
     }
 
