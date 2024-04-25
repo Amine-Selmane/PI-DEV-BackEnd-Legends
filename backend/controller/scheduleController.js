@@ -1,45 +1,133 @@
 const asyncHandler = require('express-async-handler');
 
-const scheduleSlots = require('../model/schedule');
+const ScheduleSession = require('../model/ScheduleSession');
 const dispoData = require('../model/disponibiliteModel');
+const User = require('../model/user');
 
-const addScheduleSlot = asyncHandler(async (req, res) => {
-    let userId = "660483e22c8829a741b3cdfc"
+const addScheduleSession = asyncHandler(async (req, res) => {
+  try {
+    const { teacher, students, startDateTime, endDateTime, day } = req.body;
 
-    //verify user availability
+    const existingSession = await ScheduleSession.findOne({ teacher, day });
+    if (existingSession) {
 
+      //  // Convert students array to a set to remove duplicates
+      //  const uniqueStudents = new Set(existingSession.students);
+      
+      //  // Add new students to the set
+      //  students.forEach(student => uniqueStudents.add(student));
+ 
+       // Convert set back to array
 
-    try {
-        let userAvailable = await dispoData.find({
-            utilisateur: userId
-        });
-        if (!userAvailable) {
-            return res.status(400).json({ message: "Teacher is not available" });
-        }
-        else {
+       existingSession.students = [];
+       existingSession.students = students;
+       
+       await existingSession.save();
+ 
+       res.status(200).json({
+         message: 'Schedule updated with new students',
+         existingSession,
+       });
+    } else {
+      const scheduleSession = new ScheduleSession({
+        teacher,
+        students,
+        startDateTime,
+        endDateTime,
+        day
+      });
 
-            userAvailable.forEach(element => {
-                const schedule = scheduleSlots.create({
-                    teacher: element.utilisateur,
-                    // student: scheduleSlots.student,
-                    day: element.jour,
-                    startTime: element.heureDebut,
-                    endTime: element.heureFin,
-                    // classroom: scheduleSlots.classroom,
-                    // class: scheduleSlots.class
-                })
-                console.log ("schedule created");
-            })
-            return res.json(userAvailable);
-        }
-    } catch (error) {
-
-        console.log(error);
-        res.status(500).json({ message: "Error at creating the schedule" });
+      const addedScheduleSession = await scheduleSession.save();
+      res.status(201).json({
+        message: 'New schedule added',
+        addedScheduleSession,
+      });
     }
-
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
+const getScheduleSessions = asyncHandler(async (req, res) => {
+  try {
+    const { teacher, student } = req.query;
+    const filter = {};
 
-module.exports = { addScheduleSlot }
+    if (teacher) {
+      filter.teacher = teacher;
+    }else if (student) {
+      filter.students = student;
+    }
 
+    const scheduleSessions = await ScheduleSession.find(filter);
+    res.status(200).json({
+      message: 'Schedule sessions fetched successfully',
+      scheduleSessions,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+const getAvailableStudentsAndTeachers = asyncHandler(async (req, res) => {
+  try {
+    const { jour, heureDebut, heureFin } = req.query;
+
+    const dispo = await dispoData.find({
+      jour,
+      heureDebut,
+      heureFin,
+    });
+    console.log('🚀 ~ getAvailableStudentsAndTeachers ~ dispo:', dispo);
+
+    const parseUser = function (user) {
+      return {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      };
+    };
+    const teachers = [];
+    const students = [];
+    for (const element of dispo) {
+      const user = await User.findById(element.utilisateur);
+      //   console.log('🚀 ~ getAvailableStudentsAndTeachers ~ user:', user);
+      if (user) {
+        if (user.role === 'teacher') {
+          console.log('user is teacher');
+          teachers.push(parseUser(user));
+          console.log('🚀 ~ getAvailableStudentsAndTeachers ~ teachers:', teachers);
+        } else if (user.role === 'student') {
+          console.log('user is student');
+          students.push(parseUser(user));
+        } else {
+          console.log('user is not teacher or student');
+        }
+      }
+    }
+
+    console.log('result', teachers, students);
+    if (teachers.length === 0 && students.length === 0) {
+      res.status(400).json({
+        message: 'Unvailable students and teachers !!',
+        teachers,
+        students,
+      });
+    } else {
+      res.status(200).json({
+        message: 'Available students and teachers fetched successfully',
+        teachers,
+        students,
+      });
+    }
+
+
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+module.exports = { addScheduleSession, getScheduleSessions, getAvailableStudentsAndTeachers };
