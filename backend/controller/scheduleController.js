@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 
 const ScheduleSession = require('../model/ScheduleSession');
-const dispoData = require('../model/disponibilite.model');
+const dispoData = require('../model/disponibiliteModel');
 const User = require('../model/user');
 
 const addScheduleSession = asyncHandler(async (req, res) => {
