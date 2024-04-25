@@ -20,6 +20,7 @@ const schedule = require('./routes/scheduleRoutes');
 const morgan = require('morgan');
 const router = require('./routes/restRoutes.js');
 const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
+const Payement = require('./routes/subscrition.js');
 
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
@@ -120,6 +121,7 @@ app.use('/api/stripe', stripe);
 /** api routes for user */
 app.use('/api', router);
 app.use('/courses', courses);
+app.use('/inscri',Payement);
 
 /** disponibilite routes for disponibilite */
 app.use('/disponibilte', disponibiliteRoutes);

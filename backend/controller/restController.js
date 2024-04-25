@@ -361,11 +361,11 @@ async function registerAdmin(req, res) {
             }
         }
 
-        res.status(201).send({ msg: "Utilisateur enregistré avec succès" });
-    } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-}
+        res.status(201).send({ msg: "Utilisateur enregistré avec succès", id: user._id }); // Envoyer l'ID de l'utilisateur en réponse
+      } catch (error) {
+          res.status(500).send({ error: error.message });
+      }
+  }
 
   
 

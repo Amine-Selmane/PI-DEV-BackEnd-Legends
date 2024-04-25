@@ -23,6 +23,10 @@ const UserSchema = new mongoose.Schema({
         type : Number,
         //required: [true, "Please phone number"]
     },
+    montant : { 
+        type : Number,
+       
+    },
     address: { type: String},
     grade: { type: String},
     fonction: { type: String},
@@ -30,11 +34,21 @@ const UserSchema = new mongoose.Schema({
     sexe: { type: String},
     dateNaiss : {type : Date},
     isPayer: {type: Boolean},
+    annual: {type: String},
     datePay: {type: Date},
     courses: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Courses' // Assurez-vous que c'est la bonne référence à votre modèle de cours
     }]
 });
+
+// Implement the findOne method
+UserSchema.statics.findOneAndUpdateByEmail = async function (email, update) {
+    return this.findOneAndUpdate(
+        { email },
+        update,
+        { new: true }
+    );
+};
 
 module.exports = mongoose.model('user', UserSchema)
