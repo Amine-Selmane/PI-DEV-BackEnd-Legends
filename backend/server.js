@@ -25,7 +25,8 @@ const stripe = require('./routes/Stripe.js');
 const Payement = require('./routes/subscrition.js');
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
-
+const msg = require("./routes/MessageRoute.js");
+const chat = require("./routes/ChatRoute.js");
 
 // Initialize OpenAI API client
 
@@ -123,6 +124,8 @@ app.disable('x-powered-by');
 app.use('/api',router)
 app.use('/courses',courses)
 
+app.use('/msg' , msg)
+app.use('/conver' , chat)
 
 /** disponibilite routes for disponibilite */
 app.use('/disponibilte', disponibiliteRoutes);

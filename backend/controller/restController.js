@@ -6,7 +6,7 @@ const jwt =  require ('jsonwebtoken');
 const ENV = require  ('../config.js');
 const otpGenerator = require  ('otp-generator');
 const sendAccountDetailsEmail = require('./mailer.js');
-const DisponibiliteModel = require('../model/disponibilite.Model');
+const DisponibiliteModel = require('../model/disponibiliteModel.js');
 const Courses = require('../model/coursesModel.js');
 
 /** middlware for verify user */

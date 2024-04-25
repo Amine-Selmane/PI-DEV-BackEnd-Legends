@@ -1,4 +1,4 @@
-const DisponibiliteModel = require('../model/disponibilite.Model');
+const DisponibiliteModel = require('../model/disponibiliteModel');
 
 
 /** add disponibilite */

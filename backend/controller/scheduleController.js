@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 
 const scheduleSlots = require('../model/schedule');
-const dispoData = require('../model/disponibilite.model');
+const dispoData = require('../model/disponibiliteModel');
 
 const addScheduleSlot = asyncHandler(async (req, res) => {
     let userId = "660483e22c8829a741b3cdfc"
