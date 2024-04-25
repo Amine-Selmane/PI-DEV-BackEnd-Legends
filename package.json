@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node backend/server.js",
+    "build": "echo 'Running Build Script'",
     "server": "nodemon backend/server.js",
     "sonar-scanner": "sonar-scanner"
   },
