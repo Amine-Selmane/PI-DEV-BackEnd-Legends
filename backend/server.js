@@ -26,6 +26,7 @@ const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
 
 // Initialize OpenAI API client
+const stripe = require('./routes/Stripe.js');
 
 // Chat endpoint
 
@@ -33,7 +34,7 @@ const ReservationRoutes = require('./routes/ReservationRoutes');
 const bookRouter = require('./routes/books');
 const orderRouter = require('./routes/orders');
 const ratingRouter = require('./routes/ratings');
-const stripe = require('./routes/stripeBook');
+const stripeBook = require('./routes/stripeBook');
 
 // const Event = require('./model/event');
 
@@ -115,7 +116,7 @@ app.disable('x-powered-by');
 app.use('/books', bookRouter);
 app.use('/orders', orderRouter);
 app.use('/ratings', ratingRouter);
-app.use('/api/stripe', stripe);
+app.use('/api/stripe', stripeBook);
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 
 /** api routes for user */
