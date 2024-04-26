@@ -23,7 +23,7 @@ const Report=new Schema({
         max: 20
       //   validate: {
       //     validator: function(value) {
-      //         return /^\d+$/.test(value);
+      //  //       return /^\d+$/.test(value);
       //     },
       //     message: props => `${props.value} is not a valid mark.`
       // }
