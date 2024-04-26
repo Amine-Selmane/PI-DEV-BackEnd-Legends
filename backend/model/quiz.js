@@ -22,7 +22,16 @@ const Quiz = new mongoose.Schema({
   }],
   date: Date,
   beginTime: String,
-  endTime: String
+  endTime: String,
+  code: {
+    type: String,
+    required: true,
+    minlength: 4,
+    maxlength: 4
+  },
+  userAnswerIndex: {
+    type: Number,
+  }
   // questions: {
   //   type: [{
   //     question: {
@@ -36,7 +45,7 @@ const Quiz = new mongoose.Schema({
   //     correctAnswer: {
   //       type: String,
   //       required: true
-  //     }
+  //     } //
   //   }],
   //   validate: {
   //     validator: function(val) {

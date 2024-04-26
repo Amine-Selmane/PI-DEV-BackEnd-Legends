@@ -13,6 +13,10 @@ const QuestionSchema = new Schema({
     correctOptionIndex: {
         type: Number,
         required: true
+    },
+    userAnswerIndex: {
+        type: Number,
+        // Ce champ peut ne pas être utilisé dans ce modèle
     }
 });
 
