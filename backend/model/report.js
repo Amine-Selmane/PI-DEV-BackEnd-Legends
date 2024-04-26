@@ -21,6 +21,13 @@ const Report=new Schema({
         required: true,
         min: 0,
         max: 20
+        }  ,
+        markQuiz: { // Nouveau champ pour stocker le score du quiz
+            type: Number,
+            required: true,
+            min: 0,
+            max: 20
+        }
       //   validate: {
       //     validator: function(value) {
       //         return /^\d+$/.test(value);
@@ -34,7 +41,7 @@ const Report=new Schema({
     // },
     // average: {
     //     type: Number
-    }
+    
 });
 
 // Définition d'un hook "pre" pour calculer automatiquement la moyenne avant de sauvegarder le rapport
