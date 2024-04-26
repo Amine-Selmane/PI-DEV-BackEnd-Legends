@@ -1,18 +1,5 @@
 const Book = require('../model/book');
 const Rating = require('../model/rating'); // Import the Rating model if it's a separate model
-const multer = require('multer');
-
-// Multer configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'C:/Users/soula/OneDrive/Bureau/uploads'); // Specify the directory where files will be uploaded
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname); // Use a unique filename
-  }
-});
-
-const upload = multer({ storage: storage });
 
 const getBookById = async (req, res) => {
   try {
@@ -27,36 +14,7 @@ const getBookById = async (req, res) => {
   }
 };
 
-const create = async (req, res) => {
-  try {
-    // Extract book data from request body
-    const { title, description, price } = req.body;
 
-    // Check if a file was uploaded
-    if (!req.file && !req.files) {
-      throw new Error('No file uploaded');
-    }
-
-    // Get the file path from the uploaded file
-    const file = req.file ? req.file.path : req.files[0].path;
-
-    // Create a new book object
-    const newBook = new Book({
-      title,
-      description,
-      price,
-      file // Save the file path in the book object
-    });
-
-    // Save the book to the database
-    await newBook.save();
-
-    res.status(201).json({ message: 'Book added successfully' });
-  } catch (error) {
-    console.error('Error adding book:', error);
-    res.status(500).json({ error: 'Failed to add book' });
-  }
-};
 
 async function getall(req, res) {
   try {
@@ -145,4 +103,4 @@ const submitRating = async (req, res) => {
   }
 };
 
-module.exports = { create, getall, update, deletebook, getByTitle, getBookById, submitRating };
+module.exports = { getall, update, deletebook, getByTitle, getBookById, submitRating };

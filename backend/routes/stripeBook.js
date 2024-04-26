@@ -3,7 +3,6 @@ const Stripe = require("stripe");
 const Order = require("../model/order"); // Import the Order model
 const nodemailer = require('nodemailer'); // Import Nodemailer for sending emails
 const PDFDocument = require('pdfkit'); // Import PDFKit for generating PDFs
-const twilio = require('twilio');
 
 require("dotenv").config();
 const router = express.Router();
@@ -21,8 +20,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Create Twilio client
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Function to generate PDF content
 const generatePDF = async (orderDetails) => {
@@ -39,19 +36,7 @@ const generatePDF = async (orderDetails) => {
   return doc;
 };
 
-// Function to send SMS notification
-const sendSMS = async (phoneNumber, message) => {
-  try {
-    await twilioClient.messages.create({
-      body: message,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: phoneNumber,
-    });
-    console.log("SMS notification sent successfully.");
-  } catch (error) {
-    console.error("Error sending SMS notification:", error);
-  }
-};
+
 const truncateMetadata = (metadata) => {
   for (const key in metadata) {
     if (typeof metadata[key] === 'string' && metadata[key].length > 500) {
@@ -65,7 +50,7 @@ router.post("/create-checkout-session", async (req, res) => {
     // Truncate metadata values if necessary
     const truncatedMetadata = truncateMetadata({
       userId: req.body.userId,
-      cart: JSON.stringify(req.body.cartItems),
+      cart: JSON.stringify(req.body.bookItems),
     });
 
     const customer = await stripe.customers.create({
@@ -73,21 +58,23 @@ router.post("/create-checkout-session", async (req, res) => {
     });
    
 
-    const line_items = req.body.cartItems.map((item) => {
+    const line_items = req.body.bookItems.map((bookItem) => {
       return {
         price_data: {
           currency: "usd",
           product_data: {
-            name: item.title,
-            description: item.description,
+            name: bookItem.title,
+            images: [bookItem.image],
+
+            description: bookItem.description,
             metadata: {
-              id: item.id,
-              file: item.file, // Add the file metadata
+              id: bookItem.id,
+              file: bookItem.file, // Add the file metadata
             },
           },
-          unit_amount: item.price * 100,
+          unit_amount: bookItem.price * 100,
         },
-        quantity: item.quantity,
+        quantity: bookItem.quantity,
       };
     });
 
@@ -165,9 +152,9 @@ const createOrder = async (customer, data) => {
       userId: customer.metadata.userId,
       customerId: data.customer,
       paymentIntentId: data.payment_intent,
-      items: items.map(item => ({
-        productId: item.id,
-        quantity: item.cartQuantity,
+      bookItems: items.map(bookItem => ({
+        productId: bookItem.id,
+        quantity: bookItem.cartQuantity,
       })),
       subtotal: data.amount_subtotal,
       total: data.amount_total,
@@ -192,11 +179,11 @@ const createOrder = async (customer, data) => {
     }];
 
     // Attach book files to the email
-    items.forEach(item => {
-      if (item.file) {
+    items.forEach(bookItem => {
+      if (bookItem.file) {
         emailAttachments.push({
-          filename: `${item.title}.pdf`,
-          path: item.file
+          filename: `${bookItem.title}.pdf`,
+          path: bookItem.file
         });
       }
     });
@@ -218,16 +205,13 @@ const createOrder = async (customer, data) => {
       }
     });
 
-    // Send SMS notification to the customer
-    const message = "Your order has been successfully placed .Thank you!";
-    await sendSMS(customerPhoneNumber, message);
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.error('Error creating order:', error);
   }
 };
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
-const endpointSecret = " whsec_a8b920007e264b9f4fbbe70763a71dbe80c64b326600fd97bf6d9a880c14a0c0";
+const endpointSecret = "whsec_a8b920007e264b9f4fbbe70763a71dbe80c64b326600fd97bf6d9a880c14a0c0";
 
 // Stripe webhook
 router.post(

@@ -12,7 +12,8 @@ const ratingSchema = new mongoose.Schema({
     min: 1,
     max: 5
   },
-  comment: String
+  comment: String,
+  
 });
 
 const Rating = mongoose.model('Rating', ratingSchema);

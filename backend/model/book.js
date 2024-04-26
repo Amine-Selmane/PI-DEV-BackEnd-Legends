@@ -13,11 +13,18 @@ const bookSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    // Define a field to store the file reference
     file: {
-        type: String, // Assuming you'll store the file path or URL
+        type: String,
         required: true,
-    }
+    },
+    image: {
+        type: String,
+        required: true,
+    },
+    quantity: {
+        type: Number,
+        required: true,
+    },
 });
 
 const Book = mongoose.model("Book", bookSchema);

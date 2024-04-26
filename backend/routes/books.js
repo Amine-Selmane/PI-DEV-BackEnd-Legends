@@ -1,16 +1,56 @@
-const express = require ("express")
-const router = express.Router()
-const Book = require ('../model/book')
-const multer = require("multer")
-const Rating = require ('../model/rating')
-
+const express = require("express");
+const router = express.Router();
+const multer = require("multer");
+const cloudinary = require("../config/cloudinary");
+const Book = require('../model/book');
 
 const bookController = require('../controller/bookController');
 
+// Configure multer for file uploads
+const upload = multer({ dest: "uploads/" }); // Set your destination folder
 
+// Route for adding a book with file upload to Cloudinary
+router.post("/create", upload.fields([{ name: 'file', maxCount: 1 }, { name: 'image', maxCount: 1 }]), async (req, res) => {
+  const { title, description, price,quantity } = req.body;
 
+  try {
+    // Check if files were uploaded
+    if (!req.files || !req.files.file || !req.files.image) {
+      return res.status(400).send("Files not uploaded");
+    }
 
-// Route for adding a book
+    // Upload file to Cloudinary
+    const fileUploadResponse = await cloudinary.uploader.upload(req.files.file[0].path, {
+      upload_preset: "books",
+    });
+
+    // Upload image to Cloudinary
+    const imageUploadResponse = await cloudinary.uploader.upload(req.files.image[0].path, {
+      upload_preset: "books",
+    });
+
+    // Create a new book with Cloudinary URLs
+    const book = new Book({
+      title,
+      description,
+      price,
+
+      file: fileUploadResponse.secure_url,
+      image: imageUploadResponse.secure_url,
+      quantity,
+
+    });
+
+    // Save the book to the database
+    const savedBook = await book.save();
+
+    res.status(200).send(savedBook);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
+});
+
 // Route pour récupérer un livre par son ID
 router.get("/getbookbyid/:id", bookController.getBookById);
 
@@ -28,23 +68,7 @@ router.get('/search',bookController.getByTitle);
 
 
 
-//////////////upload file//////////
-// Set up multer storage configuration
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'C:/Users/soula/OneDrive/Bureau/uploads'); // Set the destination folder for uploaded files
-    },
-    filename: function (req, file, cb) {
-      // Set the filename to be unique by appending current timestamp
-      cb(null, Date.now() + '-' + file.originalname);
-    }
-  });
-  
-  // Create a multer instance with the configured storage
-  const upload = multer({ storage: storage });
-  
-  // Route for adding a book with file upload
-  router.post("/create", upload.single('file'), bookController.create);
+
   
 
 
