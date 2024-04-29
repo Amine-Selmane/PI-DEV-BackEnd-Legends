@@ -64,5 +64,3 @@ const getAverageRatingForBook = async (req, res) => {
 };
 
 module.exports = { addRating, getAllRatingsForBook, getAverageRatingForBook };
-
-
