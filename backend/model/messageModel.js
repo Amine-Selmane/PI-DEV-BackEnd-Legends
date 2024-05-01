@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const MessageSchema = new mongoose.Schema(
   {
@@ -11,6 +11,13 @@ const MessageSchema = new mongoose.Schema(
     text: {
       type: String,
     },
+    file: {
+      type: Buffer, // Utilisez Buffer pour stocker les données du fichier
+    },
+
+    audio: {
+      type: String
+  }
   },
   {
     timestamps: true,
