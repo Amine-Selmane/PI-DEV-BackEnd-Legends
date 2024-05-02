@@ -22,7 +22,8 @@ const morgan = require('morgan');
 const router = require('./routes/restRoutes.js');
 const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
 const Payement = require('./routes/subscrition.js');
-
+const msg = require("./routes/MessageRoute.js");
+const chat = require("./routes/ChatRoute.js");
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
 
@@ -149,7 +150,8 @@ app.use('/api/stripe', stripeBook);
 app.use('/api', router);
 app.use('/courses', courses);
 app.use('/inscri',Payement);
-
+app.use('/msg',msg)
+app.use('/conver' , chat)
 /** disponibilite routes for disponibilite */
 app.use('/disponibilte', disponibiliteRoutes);
 
