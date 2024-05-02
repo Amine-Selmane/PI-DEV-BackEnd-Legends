@@ -22,7 +22,8 @@ const disponibiliteRoutes = require('./routes/disponibiliteRoutes.js');
 const EventRoutes = require('./routes/EventRoutes');
 const ReservationRoutes = require('./routes/ReservationRoutes');
 const stripe = require("./routes/Stripe");
-
+const { generateRecommendations } = require('./routes/Recommendation.js')
+// const { spawn } = require('child_process');
 // const Event = require('./model/event');
 
 
@@ -86,6 +87,54 @@ app.get('/questions', async (req, res) => {
 });
 // Enregistrez le modèle Question avec Mongoose
 //const Question = mongoose.model('Question', QuestionSchema);
+// Recommendation endpoint
+// app.post('/recommendations', (req, res) => {
+//     const { reservations } = req.body;
+//     const pythonProcess = spawn('python', ['C:/Users/donia/Downloads/Chat Bot-20240501T131948Z-001/Chat Bot/recommendation_script.py']);
+  
+//     pythonProcess.stdout.on('data', (data) => {
+//       const recommendations = JSON.parse(data);
+//       res.json(recommendations);
+//     });
+  
+//     pythonProcess.stdout.on('data', (data) => {
+//         try {
+//             const recommendations = JSON.parse(data);
+//             res.json(recommendations);
+//         } catch (error) {
+//             console.error(`Error parsing JSON data: ${error}`);
+//             res.status(500).json({ message: 'Error generating recommendations' });
+//         }
+//     });
+    
+//     pythonProcess.stdin.write(JSON.stringify(reservations));
+//     pythonProcess.stdin.end();
+//   });
+
+app.post('/recommendations', async (req, res) => {
+    try {
+        const userEmail = req.user.email; // Assuming the decoded token has an email property
+        const recommendations = await generateRecommendations(userEmail);
+        res.json({ recommendations });
+    } catch (error) {
+        console.error('Error generating recommendations:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+app.get('/recommendations/:email', async (req, res) => {
+    try {
+        const userEmail = req.params.email;
+        const recommendations = await generateRecommendations(userEmail);
+        res.json(recommendations);
+    } catch (error) {
+        console.error('Error fetching recommendations:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+
+
 
 // app.use('/path', require('./routes/restRoutes')) uncomment and change the path depending on yours // require stays like that
 app.use('/courses' , courses)
