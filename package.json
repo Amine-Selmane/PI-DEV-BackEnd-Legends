@@ -41,6 +41,7 @@
     "puppeteer": "^22.6.1",
     "qr-image": "^3.2.0",
     "qrcode": "^1.5.3",
+    "sentiment": "^5.0.2",
     "sonar-scanner": "^3.1.0",
     "stripe": "^14.21.0",
     "twilio": "^5.0.2"

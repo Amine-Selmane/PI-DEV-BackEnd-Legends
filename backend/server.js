@@ -5,6 +5,7 @@ const app = express(); //
 const connectDB = require('./config/db.js');
 const colors = require('colors');
 const reportRouter = require('./routes/reports');
+const claimRouter = require("./routes/claims");
 const quizRouter = require('./routes/quiz');
 const questionRouter = require('./routes/questions');
 const User = require('./model/user');
@@ -129,6 +130,7 @@ app.use('/scheduleSessions', schedule);
 app.use('/reports', reportRouter);
 app.use('/quiz', quizRouter);
 app.use('/questions', questionRouter);
+app.use("/claims", claimRouter);
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const ratingSchema = new mongoose.Schema({
   book: {
     type: mongoose.Schema.Types.ObjectId,
@@ -12,10 +13,17 @@ const ratingSchema = new mongoose.Schema({
     min: 1,
     max: 5
   },
-  comment: String,
-  
+  comment: {
+    type: String,
+    required: true
+  },
+  recordedAudio: {
+    type: String // Store audio data as Buffer
+  }// Field to store the audio recording as binary data
 });
 
+
 const Rating = mongoose.model('Rating', ratingSchema);
+
 
 module.exports = Rating;
