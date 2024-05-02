@@ -35,7 +35,7 @@ const bookRouter = require('./routes/books');
 const orderRouter = require('./routes/orders');
 const ratingRouter = require('./routes/ratings');
 const stripeBook = require('./routes/stripeBook');
-
+const { generateRecommendations } = require('./routes/Recommendation.js')
 // const Event = require('./model/event');
 
 connectDB();
@@ -96,6 +96,30 @@ app.get('/questions', async (req, res) => {
     res.status(500).json({ error: 'Error fetching questions' });
   }
 });
+
+
+
+app.post('/recommendations', async (req, res) => {
+  try {
+      const userEmail = req.user.email; // Assuming the decoded token has an email property
+      const recommendations = await generateRecommendations(userEmail);
+      res.json({ recommendations });
+  } catch (error) {
+      console.error('Error generating recommendations:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+app.get('/recommendations/:email', async (req, res) => {
+  try {
+      const userEmail = req.params.email;
+      const recommendations = await generateRecommendations(userEmail);
+      res.json(recommendations);
+  } catch (error) {
+      console.error('Error fetching recommendations:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Enregistrez le modèle Question avec Mongoose
 //const Question = mongoose.model('Question', QuestionSchema);
 
